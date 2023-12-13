@@ -43,8 +43,8 @@ export default function Home() {
   }, [user.token, user.data.role, router, dispatch]);
 
   return (
-    <div className=' flex max-h-[calc(100vh-3.5rem)] flex-row-reverse overflow-hidden '>
-      <div className=' bg-tremor-background-DEFAULT dark:bg-dark-tremor-background-DEFAULT grid items-center md:w-2/5'>
+    <div className=' flex h-[calc(100vh-3.5rem)] flex-row-reverse overflow-hidden '>
+      <div className=' bg-tremor-background-DEFAULT dark:bg-dark-tremor-background-DEFAULT grid h-full w-full items-center md:w-2/5'>
         <Card
           className='mx-auto flex  h-fit max-w-lg flex-col items-end gap-2.5'
           decorationColor='indigo'
