@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
 import Clients from './clients';
+import Combination from './Combination';
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@tremor/react';
 
 export default function Page() {
@@ -26,7 +27,7 @@ export default function Page() {
         <TabList variant='solid' className='mt-1 flex w-full  p-1'>
           <Tab>Clients</Tab>
           <Tab>Recipes</Tab>
-          <Tab>Collections</Tab>
+          <Tab>Combinations</Tab>
         </TabList>
         <TabPanels>
           <TabPanel>
@@ -35,10 +36,12 @@ export default function Page() {
             </div>
           </TabPanel>
           <TabPanel>
-            <div className='mt-10'>Recipes</div>
+            <div>recipie</div>
           </TabPanel>
           <TabPanel>
-            <div className='mt-10'>Collections</div>
+            <div>
+              <Combination />
+            </div>
           </TabPanel>
         </TabPanels>
       </TabGroup>

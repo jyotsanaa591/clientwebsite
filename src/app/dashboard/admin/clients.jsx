@@ -6,7 +6,6 @@ import {
   updateClient,
   getClientById,
   deleteClientByID,
-  clearClient,
 } from '@/redux/features/clients';
 import { SearchIcon } from '@heroicons/react/solid';
 import {
@@ -67,29 +66,44 @@ export default function Clients() {
         token: user.token,
       })
     );
+
     setEditClient(true);
   };
 
-  const handelDeleteClient = () => {
-    dispatch(
+  const handelDeleteClient = async () => {
+    await dispatch(
       deleteClientByID({
         id: deleteId,
         token: user.token,
       })
     );
+
+    dispatch(
+      getClients({
+        page: page,
+        token: user.token,
+      })
+    );
   };
 
-  const handelEditClient = () => {
-    dispatch(
+  const handelEditClient = async () => {
+    await dispatch(
       updateClient({
         id: editId,
         data: editClientData,
         token: user.token,
       })
     );
+
+    dispatch(
+      getClients({
+        page: page,
+        token: user.token,
+      })
+    );
   };
 
-  const handleNewClient = () => {
+  const handleNewClient = async () => {
     if (
       newClientData.first_name === '' ||
       newClientData.email === '' ||
@@ -103,9 +117,15 @@ export default function Clients() {
     console.log(newClientErrors);
 
     if (!newClientErrors) {
-      dispatch(
+      await dispatch(
         makeClient({
           data: newClientData,
+          token: user.token,
+        })
+      );
+      dispatch(
+        getClients({
+          page: page,
           token: user.token,
         })
       );
@@ -122,14 +142,15 @@ export default function Clients() {
           token: user.token,
         })
       );
+    } else {
+      dispatch(
+        getClientsBySearch({
+          page: page,
+          token: user.token,
+          search: search,
+        })
+      );
     }
-    dispatch(
-      getClientsBySearch({
-        page: page,
-        token: user.token,
-        search: search,
-      })
-    );
   };
 
   useEffect(() => {
@@ -558,6 +579,7 @@ export default function Clients() {
               update Client Info
             </Button>
           </div>
+          <Button className=' mt-2 w-full'>Client Schedule</Button>
         </div>
       )}
     </>

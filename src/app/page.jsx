@@ -17,14 +17,18 @@ export default function Home() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
 
   const handelLogin = async () => {
-    dispatch(
+    await dispatch(
       userLogin({
         email: email,
         password: password,
       })
     );
+    if (user.errorState) {
+      setError(true);
+    }
   };
 
   useEffect(() => {
@@ -62,6 +66,9 @@ export default function Home() {
             placeholder='Type password '
             type='password'
           ></TextInput>
+          {error && (
+            <div className='text-sm text-red-500'>Invalid Credentials</div>
+          )}
           <Button
             size='md'
             onClick={() => {
