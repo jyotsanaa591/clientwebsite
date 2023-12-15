@@ -14,9 +14,7 @@ import {
   getCombinationById,
 } from '@/redux/features/combination';
 
-export default function Combination() {
-  const [page, setPage] = useState(1);
-
+export default function Combination(props) {
   const dispatch = useDispatch();
 
   const user = useSelector((state) => state.user);
@@ -40,17 +38,17 @@ export default function Combination() {
   const [editId, setEditId] = useState('');
 
   useEffect(() => {
-    dispatch(getCombinationsList({ page: page, token: user.token }));
+    dispatch(getCombinationsList({ page: props.page, token: user.token }));
     setRefresh(false);
-  }, [page, refresh]);
+  }, [props.page, refresh]);
 
   const handleSearch = () => {
     if (search === '') {
-      dispatch(getCombinationsList({ page: page, token: user.token }));
+      dispatch(getCombinationsList({ page: props.page, token: user.token }));
     } else {
       dispatch(
         getCombinationsListBySearch({
-          page: page,
+          page: props.page,
           token: user.token,
           search: search,
         })
@@ -60,7 +58,7 @@ export default function Combination() {
 
   const handleDelete = async (id) => {
     await dispatch(deleteCombinationByid({ token: user.token, id: id }));
-    dispatch(getCombinationsList({ page: page, token: user.token }));
+    dispatch(getCombinationsList({ page: props.page, token: user.token }));
     document.body.classList.remove('overflow-hidden');
     setDeleteCombination(false);
   };
@@ -81,7 +79,7 @@ export default function Combination() {
         id: editId,
       })
     );
-    dispatch(getCombinationsList({ page: page, token: user.token }));
+    dispatch(getCombinationsList({ page: props.page, token: user.token }));
     document.body.classList.remove('overflow-hidden');
     setUpdateCombination(false);
   };
@@ -98,7 +96,7 @@ export default function Combination() {
         })
       );
 
-      dispatch(getCombinationsList({ page: page, token: user.token }));
+      dispatch(getCombinationsList({ page: props.page, token: user.token }));
       document.body.classList.remove('overflow-hidden');
       setNewCombination(false);
     }
@@ -253,6 +251,7 @@ export default function Combination() {
                 icon={SearchIcon}
                 onChange={(e) => {
                   setSearch(e.target.value);
+                  props.setPage(1);
                 }}
                 placeholder='Search...'
               />
@@ -301,8 +300,8 @@ export default function Combination() {
           <div className=' mt-3 flex justify-center gap-4'>
             <Button
               onClick={() => {
-                if (page > 1) {
-                  setPage(page - 1);
+                if (props.page > 1) {
+                  props.setPage(props.page - 1);
                 }
               }}
               size='xs'
@@ -311,12 +310,12 @@ export default function Combination() {
               Previous
             </Button>
             <div className='text-lg text-tremor-brand-emphasis  dark:text-dark-tremor-brand-emphasis'>
-              Page - {page}
+              Page - {props.page}
             </div>
             <Button
               onClick={() => {
                 if (combinationList?.data.length >= 9) {
-                  setPage(page + 1);
+                  props.setPage(props.page + 1);
                 }
               }}
               size='xs'

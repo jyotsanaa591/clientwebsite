@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getClients, getClientsBySearch } from '@/redux/features/clientsList';
@@ -8,6 +9,7 @@ import {
   deleteClientByID,
 } from '@/redux/features/clients';
 import { SearchIcon } from '@heroicons/react/solid';
+import { useRouter } from 'next/navigation';
 import {
   Select,
   SelectItem,
@@ -25,8 +27,8 @@ import {
 } from '@tremor/react';
 import { Icon } from '@iconify/react';
 
-export default function Clients() {
-  const [page, setPage] = useState(1);
+export default function Clients(props) {
+  const router = useRouter();
 
   const dispatch = useDispatch();
 
@@ -54,7 +56,8 @@ export default function Clients() {
     role: '0ce3fcd3-92a1-453d-8067-8308d5c372ad',
   });
   const [editClientData, setEditClientData] = useState({});
-
+  const [schedule, setSchedule] = useState(false);
+  const [scheduleId, setScheduleId] = useState('');
   const [newClientErrors, setNewClientErrors] = useState(false);
 
   const hadelEdit = async (id) => {
@@ -80,7 +83,7 @@ export default function Clients() {
 
     dispatch(
       getClients({
-        page: page,
+        page: props.page,
         token: user.token,
       })
     );
@@ -97,7 +100,7 @@ export default function Clients() {
 
     dispatch(
       getClients({
-        page: page,
+        page: props.page,
         token: user.token,
       })
     );
@@ -125,7 +128,7 @@ export default function Clients() {
       );
       dispatch(
         getClients({
-          page: page,
+          page: props.page,
           token: user.token,
         })
       );
@@ -134,18 +137,18 @@ export default function Clients() {
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (search === '') {
       dispatch(
         getClients({
-          page: page,
+          page: props.page,
           token: user.token,
         })
       );
     } else {
       dispatch(
         getClientsBySearch({
-          page: page,
+          page: props.page,
           token: user.token,
           search: search,
         })
@@ -156,12 +159,12 @@ export default function Clients() {
   useEffect(() => {
     dispatch(
       getClients({
-        page: page,
+        page: props.page,
         token: user.token,
       })
     );
     setRefresh(false);
-  }, [page, dispatch, refresh]);
+  }, [props.page, dispatch, refresh]);
 
   return (
     <>
@@ -322,6 +325,7 @@ export default function Clients() {
                 icon={SearchIcon}
                 onChange={(e) => {
                   setSearch(e.target.value);
+                  props.setPage(1);
                 }}
                 placeholder='Search...'
               />
@@ -393,8 +397,8 @@ export default function Clients() {
           <div className=' mt-3 flex justify-center gap-4'>
             <Button
               onClick={() => {
-                if (page > 1) {
-                  setPage(page - 1);
+                if (props.page > 1) {
+                  props.setPage(props.page - 1);
                 }
               }}
               size='xs'
@@ -403,12 +407,12 @@ export default function Clients() {
               Previous
             </Button>
             <div className='text-lg text-tremor-brand-emphasis  dark:text-dark-tremor-brand-emphasis'>
-              Page - {page}
+              Page - {props.page}
             </div>
             <Button
               onClick={() => {
                 if (clientsList?.clients.length >= 10) {
-                  setPage(page + 1);
+                  props.setPage(props.page + 1);
                 }
               }}
               size='xs'
@@ -579,7 +583,17 @@ export default function Clients() {
               update Client Info
             </Button>
           </div>
-          <Button className=' mt-2 w-full'>Client Schedule</Button>
+          <Button
+            onClick={() => {
+              setSchedule(true),
+                setEditClient(false),
+                document.body.classList.remove('overflow-hidden');
+              router.push(`/dashboard/admin/${client.data.id}`);
+            }}
+            className=' mt-2 w-full'
+          >
+            Client Schedule
+          </Button>
         </div>
       )}
     </>
