@@ -36,6 +36,7 @@ export default function Schedule() {
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
+  const [page, setPage] = useState(1);
 
   const schedule = useSelector((state) => state.scheduleRoot.schedule);
   const schedulelist = useSelector((state) => state.scheduleRoot.scheduleList);
@@ -74,7 +75,7 @@ export default function Schedule() {
   useEffect(() => {
     dispatch(
       getScheduleByclientID({
-        page: 1,
+        page: page,
         id: user.data.id,
         token: user.token,
       })
@@ -129,6 +130,34 @@ export default function Schedule() {
               ))}
             </TableBody>
           </Table>
+
+          <div className=' mt-3 flex justify-center gap-4'>
+            <Button
+              onClick={() => {
+                if (page > 1) {
+                  setPage(page - 1);
+                }
+              }}
+              size='xs'
+              variant='secondary'
+            >
+              Previous
+            </Button>
+            <div className='text-lg text-tremor-brand-emphasis  dark:text-dark-tremor-brand-emphasis'>
+              Page - {page}
+            </div>
+            <Button
+              onClick={() => {
+                if (schedulelist?.data.length >= 9) {
+                  setPage(page + 1);
+                }
+              }}
+              size='xs'
+              variant='secondary'
+            >
+              Next
+            </Button>
+          </div>
         </Card>
       </div>
 
@@ -218,9 +247,12 @@ function ViewSchedule(props) {
             >
               <div className='m-auto min-h-full max-w-6xl overflow-y-auto rounded-sm border border-tremor-border  bg-tremor-background-subtle p-2 font-sans  text-tremor-content-strong  dark:border-dark-tremor-border dark:bg-dark-tremor-background-subtle dark:text-dark-tremor-content-strong'>
                 <div className=' mb-1 flex w-full justify-between'>
-                  <h1 className='  font-bold'>
-                    {schedule.data.schedule?.name}
-                  </h1>
+                  <div>
+                    <h1 className='font-bold'>
+                      {schedule.data.schedule?.name}
+                    </h1>
+                    <h2>DOB : {schedule.data?.schedule?.dob}</h2>
+                  </div>
                   <div>
                     <span>
                       {formatDate(schedule.data?.start)} -{' '}

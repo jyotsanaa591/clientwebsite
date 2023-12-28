@@ -58,6 +58,9 @@ import combination from '@/redux/features/combination';
 
 export default function Schedule() {
   const [viewSchedule, setViewSchedule] = useState(false);
+  const [ViewNotes, setViewNotes] = useState(false);
+  const [viewTable, setViewTable] = useState(false);
+  const [viewMealHistory, setViewMealHistory] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
@@ -75,13 +78,15 @@ export default function Schedule() {
     name: client.data.first_name + ' ' + client.data.last_name,
     initialWeight: client.data.initial_weight,
     currentWeight: '',
+    dob: client.data.dob,
     initialAge: client.data.age,
     age: '',
     initilaHeight: client.data.height,
     diet: [
       {
         mealTime: '',
-        foodItem: '',
+        mealTitle: '',
+        recipe: '',
       },
     ],
     notes: '',
@@ -93,7 +98,9 @@ export default function Schedule() {
   const [deleteSchedule, setDeleteSchedule] = useState(false);
   const [setDeleteid, setSetDeleteid] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState('');
+  const [page, setPage] = useState(1);
   const [textAreaValues, setTextAreaValues] = useState([]);
+  const [textInput, setTextInput] = useState([]);
   const [selectedCombination, setSelectedCombination] = useState('');
   const [newScheduleData, setNewScheduleData] = useState({
     schedule: {},
@@ -175,13 +182,27 @@ export default function Schedule() {
 
   const addMealToText = (index, item) => {
     const updatedTextAreaValues = [...textAreaValues];
-    updatedTextAreaValues[index] =
-      `Name : ${item.recipe_id.title} - \nInstruction : ${item.recipe_id.instruction}`;
+    updatedTextAreaValues[index] = ` ${item.recipe_id.instruction}`;
     setTextAreaValues(updatedTextAreaValues);
 
     const fakeEvent = {
       target: {
-        name: 'foodItem',
+        name: 'recipe',
+        value: item.recipe_id.instruction,
+      },
+    };
+
+    handleMealChange(fakeEvent, index);
+  };
+
+  const addMealToInput = (index, item) => {
+    const updatedTextInput = [...textInput];
+    updatedTextInput[index] = ` ${item.recipe_id.title}`;
+    setTextInput(updatedTextInput);
+
+    const fakeEvent = {
+      target: {
+        name: 'mealTitle',
         value: item.recipe_id.title,
       },
     };
@@ -192,7 +213,14 @@ export default function Schedule() {
   const addMeal = () => {
     setFormData({
       ...formData,
-      diet: [...formData.diet, { mealTime: '', foodItem: '' }],
+      diet: [
+        ...formData.diet,
+        {
+          mealTime: '',
+          mealTitle: '',
+          recipe: '',
+        },
+      ],
     });
   };
 
@@ -233,11 +261,13 @@ export default function Schedule() {
       currentWeight: '',
       initialAge: client.data.age,
       age: '',
+      dob: client.data.dob,
       initilaHeight: client.data.height,
       diet: [
         {
           mealTime: '',
-          foodItem: '',
+          mealTitle: '',
+          recipe: '',
         },
       ],
       notes: '',
@@ -291,7 +321,7 @@ export default function Schedule() {
   useEffect(() => {
     dispatch(
       getScheduleByclientID({
-        page: 1,
+        page: page,
         id: client.data.id,
         token: user.token,
       })
@@ -316,7 +346,7 @@ export default function Schedule() {
     );
     dispatch(
       getScheduleByclientID({
-        page: 1,
+        page: page,
         id: client.data.id,
         token: user.token,
       })
@@ -502,7 +532,7 @@ export default function Schedule() {
                                   className=' w-fit cursor-pointer'
                                   onClick={() => {
                                     addMealToText(index, item);
-
+                                    addMealToInput(index, item);
                                     setAddvalueFromList(false);
                                   }}
                                   key={item.id}
@@ -517,8 +547,19 @@ export default function Schedule() {
                     )}
                   </Card>
                 )}
+                <TextInput
+                  name='mealTitle'
+                  defaultValue={textInput[index] || ''}
+                  onChange={(e) => {
+                    const newTextInput = [...textInput];
+                    newTextInput[index] = e.target.value;
+                    setTextInput(newTextInput);
+                    handleMealChange(e, index);
+                  }}
+                />
+
                 <Textarea
-                  name='foodItem'
+                  name='recipe'
                   className=' h-24'
                   value={textAreaValues[index] || ''}
                   onChange={(e) => {
@@ -558,13 +599,65 @@ export default function Schedule() {
         </div>
       )}
 
+      <div className=' flex gap-2 pl-1'>
+        <Button
+          onClick={() => {
+            setViewNotes(true);
+            document.body.style.overflow = 'hidden';
+          }}
+        >
+          Notes
+        </Button>
+        <Button
+          onClick={() => {
+            setViewTable(true);
+            document.body.style.overflow = 'hidden';
+          }}
+        >
+          Table
+        </Button>
+        <Button
+          onClick={() => {
+            setViewMealHistory(true);
+            document.body.style.overflow = 'hidden';
+          }}
+        >
+          Meal History
+        </Button>
+      </div>
+
       <div className=' p-3'>
         <div className=' flex items-center justify-between'>
-          <div>
-            <Title>
-              {client.data.first_name} {client.data.last_name}
-            </Title>
-            <Text>{client.data.email}</Text>
+          <div className='flex items-center gap-2'>
+            <div className=' flex gap-1'>
+              <Button
+                onClick={() => {
+                  router.push('/dashboard/admin');
+                }}
+              >
+                Back
+              </Button>
+              <Button
+                variant='secondary'
+                onClick={() => {
+                  dispatch(
+                    getScheduleByclientID({
+                      page: page,
+                      id: client.data.id,
+                      token: user.token,
+                    })
+                  );
+                }}
+              >
+                Refresh
+              </Button>
+            </div>
+            <div>
+              <Title>
+                {client.data.first_name} {client.data.last_name}
+              </Title>
+              <Text>{client.data.email}</Text>
+            </div>
           </div>
           <div>
             <Button
@@ -625,6 +718,33 @@ export default function Schedule() {
               ))}
             </TableBody>
           </Table>
+          <div className=' mt-3 flex justify-center gap-4'>
+            <Button
+              onClick={() => {
+                if (page > 1) {
+                  setPage(page - 1);
+                }
+              }}
+              size='xs'
+              variant='secondary'
+            >
+              Previous
+            </Button>
+            <div className='text-lg text-tremor-brand-emphasis  dark:text-dark-tremor-brand-emphasis'>
+              Page - {page}
+            </div>
+            <Button
+              onClick={() => {
+                if (schedulelist?.data.length >= 9) {
+                  setPage(page + 1);
+                }
+              }}
+              size='xs'
+              variant='secondary'
+            >
+              Next
+            </Button>
+          </div>
         </Card>
       </div>
 
@@ -678,6 +798,7 @@ export default function Schedule() {
         setViewSchedule={setViewSchedule}
         viewSchedule={viewSchedule}
       />
+      <ViewNotesWindow open={ViewNotes} setOpen={setViewNotes} />
     </>
   );
 }
@@ -760,9 +881,13 @@ function ViewSchedule(props) {
             >
               <div className='m-auto min-h-full max-w-6xl overflow-y-auto rounded-sm border border-tremor-border  bg-tremor-background-subtle p-2 font-sans  text-tremor-content-strong  dark:border-dark-tremor-border dark:bg-dark-tremor-background-subtle dark:text-dark-tremor-content-strong'>
                 <div className=' mb-1 flex w-full justify-between'>
-                  <h1 className='  font-bold'>
-                    {schedule.data.schedule?.name}
-                  </h1>
+                  <div>
+                    <h1 className='  font-bold'>
+                      {schedule.data.schedule?.name}
+                    </h1>
+                    <h2>DOB : {formatDate(schedule.data.schedule?.dob)}</h2>
+                  </div>
+
                   <div>
                     <span>
                       {formatDate(schedule.data?.start)} -{' '}
@@ -824,7 +949,9 @@ function ViewSchedule(props) {
                       <td className='min-w-[12px] p-2'>
                         {convertTo12Hour(item.mealTime)}
                       </td>
-                      <td className='min-w-[90px] p-2'>{item.foodItem}</td>
+                      <td className='min-w-[90px] p-2'>
+                        {item.mealTitle} <br /> {item.recipe}
+                      </td>
                     </tr>
                   ))}
                 </table>
@@ -837,6 +964,54 @@ function ViewSchedule(props) {
               </div>
             </PDFExport>
           </Card>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ViewNotesWindow(props) {
+  const [notes, setNotes] = useState('');
+  const dispatch = useDispatch();
+  const client = useSelector((state) => state.clientRoot.clients);
+  const user = useSelector((state) => state.user);
+  const handelNotes = async () => {
+    dispatch(
+      updateClient({
+        token: user.token,
+        id: client.data.id,
+        data: {
+          notes: notes,
+        },
+      })
+    );
+    props.setOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  return (
+    <>
+      {props.open && (
+        <div className=' fixed left-0 top-0 h-full w-full overflow-scroll bg-tremor-background  p-5 dark:bg-dark-tremor-background '>
+          <Button
+            className='mb-2'
+            onClick={() => {
+              props.setOpen(false);
+              document.body.style.overflow = 'auto';
+            }}
+          >
+            close
+          </Button>
+          <Textarea
+            className='mt-2'
+            defaultValue={client.data.notes}
+            onChange={(e) => {
+              setNotes(e.target.value);
+            }}
+          />
+          <Button className='mt-2' onClick={handelNotes}>
+            Save
+          </Button>
         </div>
       )}
     </>

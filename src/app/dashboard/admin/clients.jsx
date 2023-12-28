@@ -51,6 +51,7 @@ export default function Clients(props) {
     status: '',
     password: '',
     age: '',
+    dob: '',
     initial_weight: '',
     height: '',
     role: '0ce3fcd3-92a1-453d-8067-8308d5c372ad',
@@ -60,7 +61,7 @@ export default function Clients(props) {
   const [scheduleId, setScheduleId] = useState('');
   const [newClientErrors, setNewClientErrors] = useState(false);
 
-  const hadelEdit = async (id) => {
+  const handelEdit = async (id) => {
     setEditId(id);
     document.body.classList.add('overflow-hidden');
     await dispatch(
@@ -232,6 +233,22 @@ export default function Clients(props) {
               }}
               placeholder='Age'
             />
+            <div className=' flex flex-col gap-0.5'>
+              <span className=' px-2 text-[10px]'>Date of birth</span>
+              <input
+                className='  h-10 rounded-md border border-tremor-border bg-tremor-background px-2 text-tremor-content  outline-none hover:bg-tremor-background-muted dark:border-dark-tremor-border dark:bg-dark-tremor-background dark:text-dark-tremor-content dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-background-muted'
+                type='date'
+                onChange={(e) => {
+                  setNewClientData({
+                    ...newClientData,
+                    dob: e.target.value,
+                  });
+                }}
+                label='Date of Birth'
+                placeholder='DoB'
+              ></input>
+            </div>
+
             <Select placeholder='Active'>
               <SelectItem
                 onClick={() => {
@@ -376,7 +393,7 @@ export default function Clients(props) {
                   <TableCell
                     className=' cursor-pointer'
                     onClick={() => {
-                      hadelEdit(client.id);
+                      handelEdit(client.id);
                     }}
                   >
                     Edit
@@ -505,6 +522,24 @@ export default function Clients(props) {
               }}
               placeholder='Email *'
             />
+
+            <div className=' flex flex-col gap-0.5'>
+              <span className=' px-2 text-[10px]'>Date of birth</span>
+              <input
+                className='  h-10 rounded-md border border-tremor-border bg-tremor-background px-2 text-tremor-content  outline-none hover:bg-tremor-background-muted dark:border-dark-tremor-border dark:bg-dark-tremor-background dark:text-dark-tremor-content dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-background-muted'
+                type='date'
+                defaultValue={client.data.dob}
+                onChange={(e) => {
+                  setEditClientData({
+                    ...newClientData,
+                    dob: e.target.value,
+                  });
+                }}
+                label='Date of Birth'
+                placeholder='DoB'
+              ></input>
+            </div>
+
             <NumberInput
               defaultValue={client.data.age}
               onChange={(e) => {
