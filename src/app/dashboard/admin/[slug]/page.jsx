@@ -274,6 +274,7 @@ export default function Schedule() {
     });
     setSelectedCombination('');
     setTextAreaValues([]);
+    setTextInput([]);
     setAddvalueFromList(false);
 
     document.body.style.overflow = 'hidden';
@@ -337,13 +338,14 @@ export default function Schedule() {
       ...newScheduleData,
       schedule: formData,
     };
-    dispatch(
+    const res = await dispatch(
       makeSchedule({
         page: 1,
         token: user.token,
         data: updatedScheduleData,
       })
     );
+
     dispatch(
       getScheduleByclientID({
         page: page,
@@ -462,7 +464,7 @@ export default function Schedule() {
                   onChange={(e) => handleMealChange(e, index)}
                 />
 
-                {!textAreaValues[index] && (
+                {!textAreaValues[index] && !textInput[index] && (
                   <Button
                     className=' my-2 w-28'
                     onClick={() => {
@@ -549,7 +551,7 @@ export default function Schedule() {
                 )}
                 <TextInput
                   name='mealTitle'
-                  defaultValue={textInput[index] || ''}
+                  value={textInput[index] || ''}
                   onChange={(e) => {
                     const newTextInput = [...textInput];
                     newTextInput[index] = e.target.value;
@@ -769,7 +771,7 @@ export default function Schedule() {
                 </Button>
                 <Button
                   onClick={async () => {
-                    dispatch(
+                    await dispatch(
                       deleteScheduleById({
                         token: user.token,
                         id: setDeleteid,
@@ -800,6 +802,10 @@ export default function Schedule() {
       />
       <ViewNotesWindow open={ViewNotes} setOpen={setViewNotes} />
       <ViewTableWindow open={viewTable} setOpen={setViewTable} />
+      <ViewMealHistoryWindow
+        open={viewMealHistory}
+        setOpen={setViewMealHistory}
+      />
     </>
   );
 }
@@ -877,16 +883,16 @@ function ViewSchedule(props) {
             <PDFExport
               scale={0.6}
               ref={pdfref}
-              fileName={schedule.data.name}
+              fileName={schedule.data?.name}
               paperSize='A4'
             >
               <div className='m-auto min-h-full max-w-6xl overflow-y-auto rounded-sm border border-tremor-border  bg-tremor-background-subtle p-2 font-sans  text-tremor-content-strong  dark:border-dark-tremor-border dark:bg-dark-tremor-background-subtle dark:text-dark-tremor-content-strong'>
                 <div className=' mb-1 flex w-full justify-between'>
                   <div>
                     <h1 className='  font-bold'>
-                      {schedule.data.schedule?.name}
+                      {schedule.data?.schedule?.name}
                     </h1>
-                    <h2>DOB : {formatDate(schedule.data.schedule?.dob)}</h2>
+                    <h2>DOB : {formatDate(schedule.data?.schedule?.dob)}</h2>
                   </div>
 
                   <div>
@@ -900,29 +906,29 @@ function ViewSchedule(props) {
                 <section>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
-                      Initaial Weight : {schedule.data.schedule?.initialWeight}{' '}
+                      Initaial Weight : {schedule.data?.schedule?.initialWeight}{' '}
                       kg
                     </span>
                     <span>
-                      Current Weight : {schedule.data.schedule?.currentWeight}{' '}
+                      Current Weight : {schedule.data?.schedule?.currentWeight}{' '}
                       kg
                     </span>
                   </div>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
-                      Initaial Height : {schedule.data.schedule?.initilaHeight}{' '}
+                      Initaial Height : {schedule.data?.schedule?.initilaHeight}{' '}
                       cm
                     </span>
                     <span>
-                      Current Height : {schedule.data.schedule?.currentHeight}{' '}
+                      Current Height : {schedule.data?.schedule?.currentHeight}{' '}
                       cm
                     </span>
                   </div>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
-                      Initaial Age : {schedule.data.schedule?.initialAge}
+                      Initaial Age : {schedule.data?.schedule?.initialAge}
                     </span>
-                    <span>Current Age : {schedule.data.schedule?.age}</span>
+                    <span>Current Age : {schedule.data?.schedule?.age}</span>
                   </div>
                 </section>
                 <br />
@@ -940,7 +946,7 @@ function ViewSchedule(props) {
                     <th className='min-w-[90px] p-2'>Recipe</th>
                   </tr>
 
-                  {schedule.data.schedule?.diet.map((item, Index) => (
+                  {schedule.data?.schedule?.diet?.map((item, Index) => (
                     <tr
                       style={{ border: '0.5px solid' }}
                       key={Index}
@@ -960,7 +966,7 @@ function ViewSchedule(props) {
                 <br />
                 <div className=' grid grid-cols-1 gap-2'>
                   <h2>Notes:</h2>
-                  <span>{schedule.data.schedule?.notes}</span>
+                  <span>{schedule.data?.schedule?.notes}</span>
                 </div>
               </div>
             </PDFExport>
@@ -1078,10 +1084,7 @@ function ViewTableWindow(props) {
                 {tableData.map((row, rowIndex) => (
                   <TableRow key={rowIndex}>
                     {row.map((cell, cellIndex) => (
-                      <TableCell
-                        className=' max-w-[100px] p-0.5'
-                        key={cellIndex}
-                      >
+                      <TableCell className='  p-1' key={cellIndex}>
                         <TextInput
                           defaultValue={cell}
                           value={cell}
@@ -1114,6 +1117,93 @@ function ViewTableWindow(props) {
           >
             Save
           </Button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ViewMealHistoryWindow(props) {
+  function formatDate(dateString) {
+    // Parse the input date string
+    const date = new Date(dateString);
+
+    // Get the day, month, and year
+    const day = date.getDate();
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+
+    // Array of month names
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    // Format the date as "DD Mon YYYY"
+    const formattedDate = `${day} ${monthNames[monthIndex]} ${year}`;
+
+    return formattedDate;
+  }
+  const dispatch = useDispatch();
+  const client = useSelector((state) => state.clientRoot.clients);
+  const user = useSelector((state) => state.user);
+  const scheduleList = useSelector((state) => state.scheduleRoot.scheduleList);
+  return (
+    <>
+      {props.open && (
+        <div className=' fixed left-0 top-0 h-full w-full overflow-scroll bg-tremor-background  p-5 dark:bg-dark-tremor-background '>
+          <Button
+            className='mb-2'
+            onClick={() => {
+              props.setOpen(false);
+              document.body.style.overflow = 'auto';
+            }}
+          >
+            Close
+          </Button>
+          <Card>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableHeaderCell>From Date</TableHeaderCell>
+                  <TableHeaderCell>End Date</TableHeaderCell>
+                  <TableHeaderCell>Meals</TableHeaderCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {scheduleList.data?.map((item, Index) => (
+                  <TableRow key={item.id}>
+                    <TableCell>
+                      {item.schedule_id && formatDate(item.schedule_id.start)}
+                    </TableCell>
+                    <TableCell>
+                      {item.schedule_id && formatDate(item.schedule_id.end)}
+                    </TableCell>
+                    <TableCell className=' flex max-w-md flex-wrap'>
+                      {item.schedule_id?.schedule?.diet?.map((meal, index) => (
+                        <span
+                          className=' rounded-full bg-tremor-background-subtle p-0.5 dark:bg-dark-tremor-background-subtle'
+                          key={index}
+                        >
+                          {meal.mealTitle}
+                        </span>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         </div>
       )}
     </>
