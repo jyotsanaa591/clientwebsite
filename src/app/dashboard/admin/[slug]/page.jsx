@@ -799,6 +799,7 @@ export default function Schedule() {
         viewSchedule={viewSchedule}
       />
       <ViewNotesWindow open={ViewNotes} setOpen={setViewNotes} />
+      <ViewTableWindow open={viewTable} setOpen={setViewTable} />
     </>
   );
 }
@@ -1003,13 +1004,114 @@ function ViewNotesWindow(props) {
             close
           </Button>
           <Textarea
-            className='mt-2'
+            className='mt-2 h-[80%] w-full resize-none'
             defaultValue={client.data.notes}
             onChange={(e) => {
               setNotes(e.target.value);
             }}
           />
           <Button className='mt-2' onClick={handelNotes}>
+            Save
+          </Button>
+        </div>
+      )}
+    </>
+  );
+}
+
+function ViewTableWindow(props) {
+  const dispatch = useDispatch();
+  const client = useSelector((state) => state.clientRoot.clients); // Assuming 'client' is an object
+  const user = useSelector((state) => state.user);
+
+  const [tableData, setTableData] = useState(
+    client.data?.aditional_chart || []
+  );
+
+  const handleAddRow = () => {
+    const newTableData = [...tableData, ['', '', '', '', '', '', '']];
+    setTableData(newTableData);
+  };
+
+  const handleCellChange = (newValue, rowIndex, cellIndex) => {
+    const updatedTableData = [...tableData];
+    updatedTableData[rowIndex][cellIndex] = newValue;
+    setTableData(updatedTableData);
+  };
+
+  const handleRemoveRow = (id) => {
+    const newTableData = [...tableData];
+    newTableData.splice(id, 1);
+    setTableData(newTableData);
+  };
+
+  const handelSave = async () => {
+    dispatch(
+      updateClient({
+        token: user.token,
+        id: client.data.id,
+        data: {
+          aditional_chart: tableData,
+        },
+      })
+    );
+    props.setOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  return (
+    <>
+      {props.open && (
+        <div className=' fixed left-0 top-0 h-full w-full overflow-scroll bg-tremor-background  p-5 dark:bg-dark-tremor-background '>
+          <Button
+            className='mb-2'
+            onClick={() => {
+              props.setOpen(false);
+              document.body.style.overflow = 'auto';
+            }}
+          >
+            Close
+          </Button>
+          <Card>
+            <Table>
+              <TableBody>
+                {tableData.map((row, rowIndex) => (
+                  <TableRow key={rowIndex}>
+                    {row.map((cell, cellIndex) => (
+                      <TableCell
+                        className=' max-w-[100px] p-0.5'
+                        key={cellIndex}
+                      >
+                        <TextInput
+                          defaultValue={cell}
+                          value={cell}
+                          onChange={(e) =>
+                            handleCellChange(
+                              e.target.value,
+                              rowIndex,
+                              cellIndex
+                            )
+                          }
+                        />
+                      </TableCell>
+                    ))}
+                    <TableCell className=' p-0.5'>
+                      <Button onClick={() => handleRemoveRow(rowIndex)}>
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            <button onClick={handleAddRow}>Add Row</button>
+          </Card>
+          <Button
+            className='mt-2'
+            onClick={() => {
+              handelSave();
+            }}
+          >
             Save
           </Button>
         </div>
