@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getClients, getClientsBySearch } from '@/redux/features/clientsList';
+import axios from 'axios';
 import {
   makeClient,
   updateClient,
@@ -41,6 +42,7 @@ export default function Clients(props) {
   const [search, setSearch] = useState('');
   const [newClient, setNewClient] = useState(false);
   const [editClient, setEditClient] = useState(false);
+  const [totalClients, setTotalClients] = useState();
   const [editId, setEditId] = useState('');
   const [deleteId, setDeleteId] = useState('');
   const [deleteClient, setDeleteClient] = useState(false);
@@ -158,6 +160,21 @@ export default function Clients(props) {
   };
 
   useEffect(() => {
+    const getTotalClients = async () => {
+      const res = await axios.get(
+        `https://admin.iluvme.in/users?filter[_and][0][role][_eq]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&aggregate[countDistinct]=id`,
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+        }
+      );
+      setTotalClients(res.data.data[0].countDistinct.id);
+    };
+    getTotalClients();
+  }, [user.token, refresh]);
+
+  useEffect(() => {
     dispatch(
       getClients({
         page: props.page,
@@ -187,31 +204,38 @@ export default function Clients(props) {
           </div>
           <div className='mt-2 flex flex-col gap-1.5'>
             <div className=' flex gap-1'>
-              <TextInput
-                error={
-                  newClientData.first_name === '' && newClientErrors
-                    ? true
-                    : false
-                }
-                onChange={(e) => {
-                  setNewClientData({
-                    ...newClientData,
-                    first_name: e.target.value,
-                  });
-                }}
-                placeholder='First Name *'
-              />
-              <TextInput
-                onChange={(e) => {
-                  setNewClientData({
-                    ...newClientData,
-                    last_name: e.target.value,
-                  });
-                }}
-                placeholder='Last Name'
-              />
-            </div>
+              <div className=' w-full'>
+                <span className=' text-xs'> First name</span>
+                <TextInput
+                  error={
+                    newClientData.first_name === '' && newClientErrors
+                      ? true
+                      : false
+                  }
+                  onChange={(e) => {
+                    setNewClientData({
+                      ...newClientData,
+                      first_name: e.target.value,
+                    });
+                  }}
+                  placeholder='First Name *'
+                />
+              </div>
 
+              <div className=' w-full'>
+                <span className=' text-xs'>Last name</span>
+                <TextInput
+                  onChange={(e) => {
+                    setNewClientData({
+                      ...newClientData,
+                      last_name: e.target.value,
+                    });
+                  }}
+                  placeholder='Last Name'
+                />
+              </div>
+            </div>
+            <span className=' text-xs'>Email</span>
             <TextInput
               onChange={(e) => {
                 setNewClientData({
@@ -224,6 +248,7 @@ export default function Clients(props) {
               }
               placeholder='Email *'
             />
+            <span className=' text-xs'>Age</span>
             <NumberInput
               onChange={(e) => {
                 setNewClientData({
@@ -234,7 +259,7 @@ export default function Clients(props) {
               placeholder='Age'
             />
             <div className=' flex flex-col gap-0.5'>
-              <span className=' px-2 text-[10px]'>Date of birth</span>
+              <span className=' text-xs'>date of birth</span>
               <input
                 className='  h-10 rounded-md border border-tremor-border bg-tremor-background px-2 text-tremor-content  outline-none hover:bg-tremor-background-muted dark:border-dark-tremor-border dark:bg-dark-tremor-background dark:text-dark-tremor-content dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-background-muted'
                 type='date'
@@ -273,6 +298,7 @@ export default function Clients(props) {
                 suspended
               </SelectItem>
             </Select>
+            <span className=' text-xs'>Password</span>
             <TextInput
               onChange={(e) => {
                 setNewClientData({
@@ -285,6 +311,7 @@ export default function Clients(props) {
               }
               placeholder='Password *'
             />
+            <span className=' text-xs'>Initial Weight in kg</span>
             <NumberInput
               onChange={(e) => {
                 setNewClientData({
@@ -294,6 +321,7 @@ export default function Clients(props) {
               }}
               placeholder='Initial weight in kg'
             />
+            <span className=' text-xs'>height in cm</span>
             <NumberInput
               onChange={(e) => {
                 setNewClientData({
@@ -323,7 +351,7 @@ export default function Clients(props) {
       )}
       <div className=' px-3'>
         <div className='flex'>
-          <div className='flex gap-2 '>
+          <div className='flex w-full gap-2 '>
             <Button
               className=' text-base'
               size='xs'
@@ -332,7 +360,12 @@ export default function Clients(props) {
             >
               <Icon icon='material-symbols:refresh' />
             </Button>
-            <Title>Clients</Title>
+            <div className=' flex w-full items-center justify-between'>
+              <Title>Clients </Title>
+              <Title className=' text-tremor-brand-emphasis dark:text-dark-tremor-brand-emphasis'>
+                Total Clients - {totalClients}
+              </Title>
+            </div>
           </div>
         </div>
         <Card className='mt-4'>
@@ -375,6 +408,7 @@ export default function Clients(props) {
           <Table>
             <TableHead>
               <TableRow>
+                <TableHeaderCell>S No.</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Email</TableHeaderCell>
                 <TableHeaderCell>Active</TableHeaderCell>
@@ -383,8 +417,9 @@ export default function Clients(props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {clientsList?.clients.map((client) => (
+              {clientsList?.clients.map((client, Index) => (
                 <TableRow key={client.id}>
+                  <TableCell>{(props.page - 1) * 10 + Index + 1}</TableCell>
                   <TableCell>
                     {client.first_name} {client.last_name}
                   </TableCell>
@@ -490,28 +525,34 @@ export default function Clients(props) {
 
           <div className='mt-2 flex flex-col gap-1.5'>
             <div className=' flex gap-1'>
-              <TextInput
-                defaultValue={client.data.first_name}
-                onChange={(e) => {
-                  setEditClientData({
-                    ...editClientData,
-                    first_name: e.target.value,
-                  });
-                }}
-                placeholder='First Name *'
-              />
-              <TextInput
-                defaultValue={client.data.last_name}
-                onChange={(e) => {
-                  setEditClientData({
-                    ...editClientData,
-                    last_name: e.target.value,
-                  });
-                }}
-                placeholder='Last Name'
-              />
+              <div className=' w-full'>
+                <span className=' text-xs'>First name</span>
+                <TextInput
+                  defaultValue={client.data.first_name}
+                  onChange={(e) => {
+                    setEditClientData({
+                      ...editClientData,
+                      first_name: e.target.value,
+                    });
+                  }}
+                  placeholder='First Name *'
+                />
+              </div>
+              <div className=' w-full'>
+                <span className=' text-xs'>Last name</span>
+                <TextInput
+                  defaultValue={client.data.last_name}
+                  onChange={(e) => {
+                    setEditClientData({
+                      ...editClientData,
+                      last_name: e.target.value,
+                    });
+                  }}
+                  placeholder='Last Name'
+                />
+              </div>
             </div>
-
+            <span className=' text-xs'>Email</span>
             <TextInput
               defaultValue={client.data.email}
               onChange={(e) => {
@@ -524,7 +565,7 @@ export default function Clients(props) {
             />
 
             <div className=' flex flex-col gap-0.5'>
-              <span className=' px-2 text-[10px]'>Date of birth</span>
+              <span className=' text-xs'>Date of birth</span>
               <input
                 className='  h-10 rounded-md border border-tremor-border bg-tremor-background px-2 text-tremor-content  outline-none hover:bg-tremor-background-muted dark:border-dark-tremor-border dark:bg-dark-tremor-background dark:text-dark-tremor-content dark:shadow-dark-tremor-input dark:hover:bg-dark-tremor-background-muted'
                 type='date'
@@ -539,7 +580,7 @@ export default function Clients(props) {
                 placeholder='DoB'
               ></input>
             </div>
-
+            <span className=' text-xs'>Age</span>
             <NumberInput
               defaultValue={client.data.age}
               onChange={(e) => {
@@ -574,6 +615,7 @@ export default function Clients(props) {
                 suspended
               </SelectItem>
             </Select>
+            <span className=' text-xs'>Change Password</span>
             <TextInput
               defaultValue={client.data.password}
               onChange={(e) => {
@@ -584,6 +626,7 @@ export default function Clients(props) {
               }}
               placeholder='Password *'
             />
+            <span className=' text-xs'>Initial Weight in kg</span>
             <NumberInput
               defaultValue={client.data.initial_weight}
               onChange={(e) => {
@@ -594,6 +637,7 @@ export default function Clients(props) {
               }}
               placeholder='Initial weight in kg'
             />
+            <span className=' text-xs'>Height in Cm</span>
             <NumberInput
               defaultValue={client.data.height}
               onChange={(e) =>

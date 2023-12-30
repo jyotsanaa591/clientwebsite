@@ -80,7 +80,7 @@ export default function Schedule() {
     currentWeight: '',
     dob: client.data.dob,
     initialAge: client.data.age,
-    age: '',
+
     initilaHeight: client.data.height,
     diet: [
       {
@@ -260,7 +260,7 @@ export default function Schedule() {
       initialWeight: client.data.initial_weight,
       currentWeight: '',
       initialAge: client.data.age,
-      age: '',
+
       dob: client.data.dob,
       initilaHeight: client.data.height,
       diet: [
@@ -416,26 +416,6 @@ export default function Schedule() {
                   setFormData({
                     ...formData,
                     currentWeight: e.target.value,
-                  });
-                }}
-              />
-              <NumberInput
-                placeholder='current Age'
-                onChange={(e) => {
-                  // Log the new value
-                  setFormData({
-                    ...formData,
-                    age: e.target.value,
-                  });
-                }}
-              />
-              <NumberInput
-                placeholder='current height'
-                onChange={(e) => {
-                  // Log the new value
-                  setFormData({
-                    ...formData,
-                    currentHeight: e.target.value,
                   });
                 }}
               />
@@ -919,16 +899,13 @@ function ViewSchedule(props) {
                       Initaial Height : {schedule.data?.schedule?.initilaHeight}{' '}
                       cm
                     </span>
-                    <span>
-                      Current Height : {schedule.data?.schedule?.currentHeight}{' '}
-                      cm
-                    </span>
+                    <span></span>
                   </div>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
                       Initaial Age : {schedule.data?.schedule?.initialAge}
                     </span>
-                    <span>Current Age : {schedule.data?.schedule?.age}</span>
+                    <span></span>
                   </div>
                 </section>
                 <br />
