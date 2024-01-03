@@ -85,8 +85,12 @@ export default function Home() {
       <div className='  hidden  h-[calc(100vh-3.5rem)] w-3/5 p-5 md:block'>
         <div className=' w-ful relative h-full  '>
           <Image
+            sizes='(max-width: 640px) 100vw, 640px'
+            alt='Picture of the hero'
             className=' rounded-lg '
-            objectFit='cover'
+            style={{
+              objectFit: 'cover',
+            }}
             fill
             src={Hero}
           ></Image>

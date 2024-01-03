@@ -172,7 +172,7 @@ export default function Clients(props) {
       setTotalClients(res.data.data[0].countDistinct.id);
     };
     getTotalClients();
-  }, [user.token, refresh]);
+  }, [refresh]);
 
   useEffect(() => {
     dispatch(
