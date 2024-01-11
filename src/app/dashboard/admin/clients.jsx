@@ -172,7 +172,7 @@ export default function Clients(props) {
   useEffect(() => {
     const getTotalClients = async () => {
       const res = await axios.get(
-        `https://admin.iluvme.in/users?filter[_and][0][role][_eq]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&aggregate[countDistinct]=id`,
+        `https://admin.iluvme.in/users?filter[_and][0][role][_eq]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&filter[status]=${showSuspended}&aggregate[countDistinct]=id`,
         {
           headers: {
             Authorization: `Bearer ${user.token}`,
@@ -182,7 +182,7 @@ export default function Clients(props) {
       setTotalClients(res.data.data[0].countDistinct.id);
     };
     getTotalClients();
-  }, [refresh]);
+  }, [refresh, showSuspended]);
 
   useEffect(() => {
     dispatch(

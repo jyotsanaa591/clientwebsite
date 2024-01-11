@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+
 import {
   Page,
   Text,
@@ -20,7 +21,6 @@ import {
   getClientById,
   deleteClientByID,
 } from '@/redux/features/clients';
-
 import {
   getCombinationsList,
   getCombinationsListBySearch,
@@ -867,6 +867,11 @@ function ViewSchedule(props) {
               paperSize='A4'
             >
               <div className='m-auto min-h-full max-w-6xl overflow-y-auto rounded-sm border border-tremor-border  bg-tremor-background-subtle p-2 font-sans  text-tremor-content-strong  dark:border-dark-tremor-border dark:bg-dark-tremor-background-subtle dark:text-dark-tremor-content-strong'>
+                <img
+                  alt='letterhead'
+                  className='w-full rounded-md object-cover'
+                  src='/letterhead.png'
+                />
                 <div className=' mb-1 flex w-full justify-between'>
                   <div>
                     <h1 className='  font-bold'>
@@ -886,7 +891,7 @@ function ViewSchedule(props) {
                 <section>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
-                      Initaial Weight : {schedule.data?.schedule?.initialWeight}{' '}
+                      Starting Weight : {schedule.data?.schedule?.initialWeight}{' '}
                       kg
                     </span>
                     <span>
@@ -896,16 +901,9 @@ function ViewSchedule(props) {
                   </div>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
-                      Initaial Height : {schedule.data?.schedule?.initilaHeight}{' '}
-                      cm
+                      Height : {schedule.data?.schedule?.initilaHeight} cm
                     </span>
-                    <span></span>
-                  </div>
-                  <div className=' grid grid-cols-2 gap-20'>
-                    <span>
-                      Initaial Age : {schedule.data?.schedule?.initialAge}
-                    </span>
-                    <span></span>
+                    <span>Age : {schedule.data?.schedule?.initialAge}</span>
                   </div>
                 </section>
                 <br />
@@ -920,7 +918,7 @@ function ViewSchedule(props) {
                   >
                     <th className='min-w-[90px] p-2'>Sno.</th>
                     <th className='min-w-[120px] p-2'>Time</th>
-                    <th className='min-w-[90px] p-2'>Recipe</th>
+                    <th className='min-w-[90px] p-2'>Meal</th>
                   </tr>
 
                   {schedule.data?.schedule?.diet?.map((item, Index) => (
@@ -933,9 +931,7 @@ function ViewSchedule(props) {
                       <td className='min-w-[12px] p-2'>
                         {convertTo12Hour(item.mealTime)}
                       </td>
-                      <td className='min-w-[90px] p-2'>
-                        {item.mealTitle} <br /> {item.recipe}
-                      </td>
+                      <td className='min-w-[90px] p-2'>{item.mealTitle}</td>
                     </tr>
                   ))}
                 </table>
@@ -943,7 +939,40 @@ function ViewSchedule(props) {
                 <br />
                 <div className=' grid grid-cols-1 gap-2'>
                   <h2>Notes:</h2>
-                  <span>{schedule.data?.schedule?.notes}</span>
+                  <span>
+                    {schedule.data?.schedule?.notes
+                      .split('\n')
+                      .map((line, index) => (
+                        <div key={index}>
+                          {line}
+                          <br />
+                        </div>
+                      ))}
+                  </span>
+                </div>
+                <div>
+                  <br />
+                  <br />
+                  <h2>Recipes</h2>
+                  <hr />
+
+                  {schedule.data?.schedule?.diet?.map((item, Index) => (
+                    <div
+                      style={{ border: '0.5px solid' }}
+                      key={Index}
+                      className='border-b-1 min-w-[90px]  border-solid border-tremor-border p-1  align-text-top dark:border-dark-tremor-border'
+                    >
+                      <h3 className='min-w-[12px] p-2'>
+                        {item.mealTitle} - {convertTo12Hour(item.mealTime)}
+                      </h3>
+                      {item.recipe.split('\n').map((line, index) => (
+                        <div className=' px-2' key={index}>
+                          {line}
+                          <br />
+                        </div>
+                      ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             </PDFExport>

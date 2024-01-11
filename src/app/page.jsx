@@ -20,13 +20,20 @@ export default function Home() {
   const [error, setError] = useState(false);
 
   const handelLogin = async () => {
-    await dispatch(
-      userLogin({
-        email: email,
-        password: password,
-      })
-    );
-    if (user.errorState) {
+    try {
+      const res = await dispatch(
+        userLogin({
+          email: email,
+          password: password,
+        })
+      );
+
+      if (res.error) {
+        setError(true);
+        //get response from server
+        console.log(res.error.response);
+      }
+    } catch (error) {
       setError(true);
     }
   };
@@ -67,7 +74,9 @@ export default function Home() {
             type='password'
           ></TextInput>
           {error && (
-            <div className='text-sm text-red-500'>Invalid Credentials</div>
+            <div className='text-sm text-red-500'>
+              Invalid Credentials or account suspended
+            </div>
           )}
           <Button
             size='md'

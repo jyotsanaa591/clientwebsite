@@ -53,6 +53,7 @@ const user = createSlice({
         ...state,
         loading: false,
         token: action.payload.data.access_token,
+
         data: {},
       };
     });
@@ -61,7 +62,7 @@ const user = createSlice({
         ...state,
         loading: false,
         errorState: true,
-        error: action.payload,
+        error: action.error,
       };
     });
 
