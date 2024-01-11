@@ -10,9 +10,9 @@ const initialState = {
 
 export const getClients = createAsyncThunk(
   'clients/getClients',
-  async ({ token, page }) => {
+  async ({ token, page, active }) => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users?filter[role]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&limit=10&page=${page}&sort=first_name`,
+      `${process.env.NEXT_PUBLIC_API_URL}/users?filter[role]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&filter[status]=${active}&limit=10&page=${page}&sort=first_name`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -26,9 +26,9 @@ export const getClients = createAsyncThunk(
 
 export const getClientsBySearch = createAsyncThunk(
   'clients/getClientsBySearch',
-  async ({ token, page, search }) => {
+  async ({ token, page, search, active }) => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/users?filter[role]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&search=${search}&limit=10&page=${page}&sort=first_name`,
+      `${process.env.NEXT_PUBLIC_API_URL}/users?filter[role]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&filter[status]=${active}&search=${search}&limit=10&page=${page}&sort=first_name`,
       {
         headers: {
           'Content-Type': 'application/json',

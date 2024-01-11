@@ -1012,7 +1012,10 @@ function ViewTableWindow(props) {
   );
 
   const handleAddRow = () => {
-    const newTableData = [...tableData, ['', '', '', '', '', '', '']];
+    const newTableData = [
+      ...tableData,
+      ['', '', '', '', '', '', '', '', '', ''],
+    ];
     setTableData(newTableData);
   };
 

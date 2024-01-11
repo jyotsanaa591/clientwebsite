@@ -46,6 +46,7 @@ export default function Clients(props) {
   const [editId, setEditId] = useState('');
   const [deleteId, setDeleteId] = useState('');
   const [deleteClient, setDeleteClient] = useState(false);
+  const [showSuspended, setShowSuspended] = useState('active');
   const [newClientData, setNewClientData] = useState({
     first_name: '',
     last_name: '',
@@ -62,6 +63,10 @@ export default function Clients(props) {
   const [schedule, setSchedule] = useState(false);
   const [scheduleId, setScheduleId] = useState('');
   const [newClientErrors, setNewClientErrors] = useState(false);
+
+  useEffect(() => {
+    setShowSuspended('active');
+  }, [props.page]);
 
   const handelEdit = async (id) => {
     setEditId(id);
@@ -86,6 +91,7 @@ export default function Clients(props) {
 
     dispatch(
       getClients({
+        active: showSuspended,
         page: props.page,
         token: user.token,
       })
@@ -103,6 +109,7 @@ export default function Clients(props) {
 
     dispatch(
       getClients({
+        active: showSuspended,
         page: props.page,
         token: user.token,
       })
@@ -131,6 +138,7 @@ export default function Clients(props) {
       );
       dispatch(
         getClients({
+          active: showSuspended,
           page: props.page,
           token: user.token,
         })
@@ -144,6 +152,7 @@ export default function Clients(props) {
     if (search === '') {
       dispatch(
         getClients({
+          active: showSuspended,
           page: props.page,
           token: user.token,
         })
@@ -151,6 +160,7 @@ export default function Clients(props) {
     } else {
       dispatch(
         getClientsBySearch({
+          active: showSuspended,
           page: props.page,
           token: user.token,
           search: search,
@@ -177,12 +187,13 @@ export default function Clients(props) {
   useEffect(() => {
     dispatch(
       getClients({
+        active: showSuspended,
         page: props.page,
         token: user.token,
       })
     );
     setRefresh(false);
-  }, [props.page, dispatch, refresh]);
+  }, [props.page, dispatch, refresh, showSuspended]);
 
   return (
     <>
@@ -383,27 +394,39 @@ export default function Clients(props) {
                 Search
               </Button>
             </div>
-
-            <Button
-              onClick={() => {
-                setNewClient(true),
-                  setNewClientData({
-                    first_name: '',
-                    last_name: '',
-                    email: '',
-                    password: '',
-                    age: '',
-                    initial_weight: '',
-                    height: '',
-                    role: '0ce3fcd3-92a1-453d-8067-8308d5c372ad',
-                  }),
-                  document.body.classList.add('overflow-hidden');
-              }}
-              size='xs'
-              variant='primary'
-            >
-              New User
-            </Button>
+            <div className=' flex gap-1'>
+              <Button
+                size='xs'
+                variant='secondary'
+                onClick={() => {
+                  setShowSuspended(
+                    showSuspended === 'active' ? 'suspended' : 'active'
+                  );
+                }}
+              >
+                {showSuspended}
+              </Button>
+              <Button
+                onClick={() => {
+                  setNewClient(true),
+                    setNewClientData({
+                      first_name: '',
+                      last_name: '',
+                      email: '',
+                      password: '',
+                      age: '',
+                      initial_weight: '',
+                      height: '',
+                      role: '0ce3fcd3-92a1-453d-8067-8308d5c372ad',
+                    }),
+                    document.body.classList.add('overflow-hidden');
+                }}
+                size='xs'
+                variant='primary'
+              >
+                New User
+              </Button>
+            </div>
           </div>
           <Table>
             <TableHead>
