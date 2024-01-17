@@ -203,7 +203,7 @@ export default function Recipes(props) {
   return (
     <>
       {deleteRecipe && (
-        <div className=' absolute left-0 top-0 z-10 grid h-full w-full items-center backdrop-blur-md'>
+        <div className=' fixed left-0 top-0 z-10 grid h-full w-full items-center backdrop-blur-md'>
           <Card className='  m-auto w-full max-w-lg'>
             <div className=' flex w-full items-center justify-between'>
               <Title>Delete Recipe</Title>
@@ -245,7 +245,7 @@ export default function Recipes(props) {
       )}
 
       {createRecipe && (
-        <div className=' absolute left-0 top-0 z-10 h-full w-full bg-tremor-background-muted p-3 dark:bg-dark-tremor-brand-faint'>
+        <div className=' fixed left-0 top-0 z-10 h-full w-full bg-tremor-background-muted p-3 dark:bg-dark-tremor-brand-faint'>
           <Card className=' h-full w-full'>
             <div className=' flex w-full items-center justify-between'>
               <Title>New Recipe</Title>
@@ -428,7 +428,7 @@ export default function Recipes(props) {
       )}
 
       {editRecipe && (
-        <div className=' absolute left-0 top-0 z-10 h-full w-full bg-tremor-background-muted p-3 dark:bg-dark-tremor-brand-faint'>
+        <div className=' fixed left-0 top-0 z-10 h-full w-full bg-tremor-background-muted p-3 dark:bg-dark-tremor-brand-faint'>
           <Card className=' h-full w-full overflow-y-auto'>
             <div className=' flex w-full items-center justify-between'>
               <Title>{recipe.data.title}</Title>

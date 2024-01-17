@@ -361,7 +361,7 @@ export default function Schedule() {
   return (
     <>
       {newSchedule && (
-        <div className='absolute left-0 top-0 z-10 h-full w-full p-3 backdrop-blur-md'>
+        <div className='fixed left-0 top-0 z-10 h-full w-full p-3 backdrop-blur-md'>
           <Card className=' h-full w-full  overflow-y-auto'>
             <div className=' flex w-full items-center justify-between'>
               <Title>New Schedule</Title>
@@ -599,7 +599,16 @@ export default function Schedule() {
           Table
         </Button>
         <Button
-          onClick={() => {
+          onClick={async () => {
+            setPage(1);
+            await dispatch(
+              getScheduleByclientID({
+                page: 1,
+                id: client.data.id,
+                token: user.token,
+              })
+            );
+
             setViewMealHistory(true);
             document.body.style.overflow = 'hidden';
           }}
@@ -717,7 +726,7 @@ export default function Schedule() {
             </div>
             <Button
               onClick={() => {
-                if (schedulelist?.data.length >= 9) {
+                if (schedulelist?.data.length >= 10) {
                   setPage(page + 1);
                 }
               }}
@@ -732,7 +741,7 @@ export default function Schedule() {
 
       {deleteSchedule && (
         <div>
-          <div className='absolute top-0 z-20 grid  h-full w-full items-center p-3 backdrop-blur-md'>
+          <div className='fixed top-0 z-20 grid  h-full w-full items-center p-3 backdrop-blur-md'>
             <Card className=' m-auto  max-w-xl p-2'>
               <div className=' flex w-full items-center justify-between'>
                 <Title>Delete Schedule</Title>
@@ -840,7 +849,7 @@ function ViewSchedule(props) {
   return (
     <>
       {props.viewSchedule && (
-        <div className='absolute top-0  z-20 h-full w-full p-3 backdrop-blur-md'>
+        <div className='fixed top-0  z-20 h-full w-full p-3 backdrop-blur-md'>
           <Card className=' h-full w-full overflow-y-auto p-2'>
             <div className=' flex w-full justify-between'>
               <Button
@@ -866,13 +875,13 @@ function ViewSchedule(props) {
               fileName={schedule.data?.name}
               paperSize='A4'
             >
-              <div className='m-auto min-h-full max-w-6xl overflow-y-auto rounded-sm border border-tremor-border  bg-tremor-background-subtle p-2 font-sans  text-tremor-content-strong  dark:border-dark-tremor-border dark:bg-dark-tremor-background-subtle dark:text-dark-tremor-content-strong'>
+              <div className='m-auto min-h-full max-w-6xl overflow-y-auto  border border-tremor-border  bg-white  font-sans  text-tremor-content-strong    '>
                 <img
                   alt='letterhead'
-                  className='w-full rounded-md object-cover'
+                  className='w-full  object-cover'
                   src='/letterhead.png'
                 />
-                <div className=' mb-1 flex w-full justify-between'>
+                <div className=' mb-1 flex w-full justify-between px-2'>
                   <div>
                     <h1 className='  font-bold'>
                       {schedule.data?.schedule?.name}
@@ -887,8 +896,8 @@ function ViewSchedule(props) {
                     </span>
                   </div>
                 </div>{' '}
-                <hr className=' border-t-2' />
-                <section>
+                <hr className=' border-t-2  border-black' />
+                <section className='px-2'>
                   <div className=' grid grid-cols-2 gap-20'>
                     <span>
                       Starting Weight : {schedule.data?.schedule?.initialWeight}{' '}
@@ -907,37 +916,39 @@ function ViewSchedule(props) {
                   </div>
                 </section>
                 <br />
-                <hr />
-                <h2>Diet to be Followed</h2>
-                <hr />
+                <hr className='border-black' />
+                <h2 className='px-2'>Diet to be Followed</h2>
+                <hr className=' border-black' />
                 <br />
-                <table className='mt-5 w-full'>
-                  <tr
-                    style={{ border: '0.5px solid' }}
-                    className='border-b-1 min-w-[90px] border-solid border-tremor-border align-text-top dark:border-dark-tremor-border'
-                  >
-                    <th className='min-w-[90px] p-2'>Sno.</th>
-                    <th className='min-w-[120px] p-2'>Time</th>
-                    <th className='min-w-[90px] p-2'>Meal</th>
-                  </tr>
-
-                  {schedule.data?.schedule?.diet?.map((item, Index) => (
+                <section className='px-2'>
+                  <table className='mt-5  w-full'>
                     <tr
                       style={{ border: '0.5px solid' }}
-                      key={Index}
-                      className='border-b-1  min-w-[90px] border-solid border-tremor-border  align-text-top dark:border-dark-tremor-border'
+                      className='border-b-1 min-w-[90px] border-solid border-tremor-border align-text-top '
                     >
-                      <td className='min-w-[90px] p-2'>{Index + 1}</td>
-                      <td className='min-w-[12px] p-2'>
-                        {convertTo12Hour(item.mealTime)}
-                      </td>
-                      <td className='min-w-[90px] p-2'>{item.mealTitle}</td>
+                      <th className='min-w-[90px] p-2'>Sno.</th>
+                      <th className='min-w-[120px] p-2'>Time</th>
+                      <th className='min-w-[90px] p-2'>Meal</th>
                     </tr>
-                  ))}
-                </table>
+
+                    {schedule.data?.schedule?.diet?.map((item, Index) => (
+                      <tr
+                        style={{ border: '0.5px solid' }}
+                        key={Index}
+                        className='border-b-1  min-w-[90px] border-solid border-tremor-border  align-text-top '
+                      >
+                        <td className='min-w-[90px] p-2'>{Index + 1}</td>
+                        <td className='min-w-[12px] p-2'>
+                          {convertTo12Hour(item.mealTime)}
+                        </td>
+                        <td className='min-w-[90px] p-2'>{item.mealTitle}</td>
+                      </tr>
+                    ))}
+                  </table>
+                </section>
                 <br />
                 <br />
-                <div className=' grid grid-cols-1 gap-2'>
+                <div className=' grid grid-cols-1 gap-2 px-2'>
                   <h2>Notes:</h2>
                   <span>
                     {schedule.data?.schedule?.notes
@@ -952,27 +963,31 @@ function ViewSchedule(props) {
                 </div>
                 <div>
                   <br />
-                  <br />
-                  <h2>Recipes</h2>
-                  <hr />
 
-                  {schedule.data?.schedule?.diet?.map((item, Index) => (
-                    <div
-                      style={{ border: '0.5px solid' }}
-                      key={Index}
-                      className='border-b-1 min-w-[90px]  border-solid border-tremor-border p-1  align-text-top dark:border-dark-tremor-border'
-                    >
-                      <h3 className='min-w-[12px] p-2'>
-                        {item.mealTitle} - {convertTo12Hour(item.mealTime)}
-                      </h3>
-                      {item.recipe.split('\n').map((line, index) => (
-                        <div className=' px-2' key={index}>
-                          {line}
-                          <br />
-                        </div>
-                      ))}
-                    </div>
-                  ))}
+                  <section className='px-2'>
+                    <h2>Recipes</h2>
+                    <hr />
+
+                    {schedule.data?.schedule?.diet?.map((item, Index) => (
+                      <div
+                        style={{ border: '0.5px solid' }}
+                        key={Index}
+                        className='border-b-1 min-w-[90px]  border-solid border-tremor-border p-1  align-text-top '
+                      >
+                        <h3 className='min-w-[12px] p-2'>
+                          {item.mealTitle} - {convertTo12Hour(item.mealTime)}
+                        </h3>
+                        {item.recipe?.split('\n').map((line, index) => (
+                          <div className=' px-2' key={index}>
+                            {line}
+                            <br />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </section>
+                  <br />
+                  <br />
                 </div>
               </div>
             </PDFExport>
@@ -1163,17 +1178,38 @@ function ViewMealHistoryWindow(props) {
 
     return formattedDate;
   }
+  const [page, setPage] = useState(1);
+
   const dispatch = useDispatch();
   const client = useSelector((state) => state.clientRoot.clients);
   const user = useSelector((state) => state.user);
   const scheduleList = useSelector((state) => state.scheduleRoot.scheduleList);
+
+  useEffect(() => {
+    dispatch(
+      getScheduleByclientID({
+        page: page,
+        id: client.data.id,
+        token: user.token,
+      })
+    );
+  }, []);
+
   return (
     <>
       {props.open && (
         <div className=' fixed left-0 top-0 h-full w-full overflow-scroll bg-tremor-background  p-5 dark:bg-dark-tremor-background '>
           <Button
             className='mb-2'
-            onClick={() => {
+            onClick={async () => {
+              setPage(1);
+              await dispatch(
+                getScheduleByclientID({
+                  page: page,
+                  id: client.data.id,
+                  token: user.token,
+                })
+              );
               props.setOpen(false);
               document.body.style.overflow = 'auto';
             }}
@@ -1212,6 +1248,33 @@ function ViewMealHistoryWindow(props) {
                 ))}
               </TableBody>
             </Table>
+            <div className=' mt-3 flex justify-center gap-4'>
+              <Button
+                onClick={() => {
+                  if (page > 1) {
+                    setPage(page - 1);
+                  }
+                }}
+                size='xs'
+                variant='secondary'
+              >
+                Previous
+              </Button>
+              <div className='text-lg text-tremor-brand-emphasis  dark:text-dark-tremor-brand-emphasis'>
+                Page - {page}
+              </div>
+              <Button
+                onClick={() => {
+                  if (scheduleList?.data.length >= 10) {
+                    setPage(page + 1);
+                  }
+                }}
+                size='xs'
+                variant='secondary'
+              >
+                Next
+              </Button>
+            </div>
           </Card>
         </div>
       )}

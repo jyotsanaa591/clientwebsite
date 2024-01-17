@@ -198,7 +198,7 @@ export default function Clients(props) {
   return (
     <>
       {newClient && (
-        <div className=' absolute right-0 top-0 z-10 h-screen w-4/5 min-w-[300px]  rounded-sm bg-tremor-brand-faint p-2 dark:bg-dark-tremor-background-subtle'>
+        <div className=' fixed right-0 top-0 z-10 h-screen w-4/5 min-w-[300px] overflow-x-auto  rounded-sm bg-tremor-brand-faint p-2 dark:bg-dark-tremor-background-subtle'>
           <div className='flex items-center justify-between gap-2 '>
             <Title>New Client</Title>
             <Button
@@ -500,7 +500,7 @@ export default function Clients(props) {
       </div>
 
       {deleteClient && (
-        <div className='absolute top-0 grid h-full w-full  items-center backdrop-blur-xl'>
+        <div className='fixed top-0 grid h-full w-full  items-center backdrop-blur-xl'>
           <Card className='  w-46  m-auto '>
             Do you want to delete this client?
             <div className='mt-2 flex gap-2'>
@@ -529,7 +529,7 @@ export default function Clients(props) {
       )}
 
       {editClient && (
-        <div className=' absolute right-0 top-0 z-10 h-screen w-4/5 min-w-[300px]  rounded-sm bg-tremor-brand-faint p-2 dark:bg-dark-tremor-background-subtle'>
+        <div className=' fixed right-0 top-0 z-10 h-screen w-4/5 min-w-[300px] overflow-x-auto  rounded-sm bg-tremor-brand-faint p-2 dark:bg-dark-tremor-background-subtle'>
           <div className='flex items-center justify-between gap-2 '>
             <Title>Edit Client</Title>
 

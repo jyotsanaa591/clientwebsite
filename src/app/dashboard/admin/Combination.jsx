@@ -105,7 +105,7 @@ export default function Combination(props) {
   return (
     <>
       {newCombination && (
-        <div className=' absolute left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
+        <div className=' fixed left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
           <Card className=' m-auto w-3/4 max-w-lg'>
             <div className='flex w-full items-start justify-between'>
               <Title>New Combination</Title>
@@ -149,7 +149,7 @@ export default function Combination(props) {
       )}
 
       {updateCombination && (
-        <div className=' absolute left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
+        <div className=' fixed left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
           <Card className=' m-auto w-3/4 max-w-lg'>
             <div className='flex w-full items-start justify-between'>
               <Title>{combination.data.title}</Title>
@@ -190,7 +190,7 @@ export default function Combination(props) {
       )}
 
       {deleteCombination && (
-        <div className=' absolute left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
+        <div className=' fixed left-0 top-0 z-10 grid h-full w-full items-center  backdrop-blur-md '>
           <Card className=' m-auto w-3/4 max-w-lg'>
             <div className='flex w-full items-start justify-between'>
               <Title>Do you want to delete this combination ?</Title>
