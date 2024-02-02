@@ -12,7 +12,7 @@ export const getCombinationabyrecipeId = createAsyncThunk(
   'combinationList/getCombinationabyrecipeId',
   async ({ token, id }) => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/items/combination_recipe?fields[]=combination_id.title&fields[]=combination_id.id&fields[]=id&filter[_and][0][recipe_id]=${id}&page=1&limit=60`,
+      `${process.env.NEXT_PUBLIC_API_URL}/items/combination_recipe?fields[]=combination_id.title&fields[]=combination_id.id&fields[]=id&filter[_and][0][recipe_id]=${id}&page=1&limit=300`,
       {
         headers: {
           'Content-Type': 'application/json',

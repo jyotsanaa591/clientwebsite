@@ -98,6 +98,7 @@ export default function Schedule() {
   const [deleteSchedule, setDeleteSchedule] = useState(false);
   const [setDeleteid, setSetDeleteid] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState('');
+  const [recipeLoading, SetRecipeLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [textAreaValues, setTextAreaValues] = useState([]);
   const [textInput, setTextInput] = useState([]);
@@ -135,15 +136,22 @@ export default function Schedule() {
   }, [search]);
 
   useEffect(() => {
+    SetRecipeLoading;
     if (selectedCombination !== '') {
-      dispatch(
-        getRecipeByCombinationId({
-          page: 1,
-          search: '',
-          token: user.token,
-          id: selectedCombination,
-        })
-      );
+      const fetchRecipe = async () => {
+        SetRecipeLoading(true);
+        await dispatch(
+          getRecipeByCombinationId({
+            page: 1,
+            search: '',
+            token: user.token,
+            id: selectedCombination,
+          })
+        );
+        SetRecipeLoading(false);
+      };
+
+      fetchRecipe();
     }
   }, [selectedCombination]);
 
@@ -506,23 +514,29 @@ export default function Schedule() {
                           }}
                         ></TextInput>
 
-                        {recipeList.data.length > 0 && (
+                        {recipeLoading ? (
+                          <div>Loading...</div>
+                        ) : (
                           <div className='mt-2 flex flex-wrap gap-2'>
-                            {recipeList.data.map((item) => {
-                              return (
-                                <Card
-                                  className=' w-fit cursor-pointer'
-                                  onClick={() => {
-                                    addMealToText(index, item);
-                                    addMealToInput(index, item);
-                                    setAddvalueFromList(false);
-                                  }}
-                                  key={item.id}
-                                >
-                                  {item?.recipe_id && item.recipe_id.title}
-                                </Card>
-                              );
-                            })}
+                            {recipeList.data.length > 0 && (
+                              <div className='mt-2 flex flex-wrap gap-2'>
+                                {recipeList.data.map((item) => {
+                                  return (
+                                    <Card
+                                      className=' w-fit cursor-pointer'
+                                      onClick={() => {
+                                        addMealToText(index, item);
+                                        addMealToInput(index, item);
+                                        setAddvalueFromList(false);
+                                      }}
+                                      key={item.id}
+                                    >
+                                      {item?.recipe_id && item.recipe_id.title}
+                                    </Card>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
