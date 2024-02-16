@@ -190,13 +190,15 @@ export default function Schedule() {
 
   const addMealToText = (index, item) => {
     const updatedTextAreaValues = [...textAreaValues];
-    updatedTextAreaValues[index] = ` ${item.recipe_id.instruction}`;
+    updatedTextAreaValues[index] = updatedTextAreaValues[index]
+      ? `${updatedTextAreaValues[index]}\n${item.recipe_id.instruction}`
+      : `${item.recipe_id.instruction}`;
     setTextAreaValues(updatedTextAreaValues);
 
     const fakeEvent = {
       target: {
         name: 'recipe',
-        value: item.recipe_id.instruction,
+        value: updatedTextAreaValues[index],
       },
     };
 
@@ -205,13 +207,15 @@ export default function Schedule() {
 
   const addMealToInput = (index, item) => {
     const updatedTextInput = [...textInput];
-    updatedTextInput[index] = ` ${item.recipe_id.title}`;
+    updatedTextInput[index] = updatedTextInput[index]
+      ? `${updatedTextInput[index]}, ${item.recipe_id.title}`
+      : `${item.recipe_id.title}`;
     setTextInput(updatedTextInput);
 
     const fakeEvent = {
       target: {
         name: 'mealTitle',
-        value: item.recipe_id.title,
+        value: updatedTextInput[index],
       },
     };
 
@@ -452,18 +456,16 @@ export default function Schedule() {
                   onChange={(e) => handleMealChange(e, index)}
                 />
 
-                {!textAreaValues[index] && !textInput[index] && (
-                  <Button
-                    className=' my-2 w-28'
-                    onClick={() => {
-                      setAddvalueFromList(!addvalueFromList);
-                      setSelectedCombination('');
-                      document.body.style.overflow = 'hidden';
-                    }}
-                  >
-                    Search Recipe
-                  </Button>
-                )}
+                <Button
+                  className=' my-2 w-28'
+                  onClick={() => {
+                    setAddvalueFromList(!addvalueFromList);
+                    setSelectedCombination('');
+                    document.body.style.overflow = 'hidden';
+                  }}
+                >
+                  Search Recipe
+                </Button>
 
                 {addvalueFromList && (
                   <Card className=' fixed left-0 top-0 z-30 h-[100vh] w-[100vw]'>
