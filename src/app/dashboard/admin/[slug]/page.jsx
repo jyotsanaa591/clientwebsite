@@ -457,6 +457,10 @@ export default function Schedule() {
                 />
 
                 <Button
+                  style={{
+                    display:
+                      index === formData.diet.length - 1 ? 'flex' : 'none',
+                  }}
                   className=' my-2 w-28'
                   onClick={() => {
                     setAddvalueFromList(!addvalueFromList);
