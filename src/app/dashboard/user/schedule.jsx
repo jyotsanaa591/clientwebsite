@@ -311,7 +311,14 @@ function ViewSchedule(props) {
                         <td className='min-w-[12px] p-2'>
                           {convertTo12Hour(item.mealTime)}
                         </td>
-                        <td className='min-w-[90px] p-2'>{item.mealTitle}</td>
+                        <td className='min-w-[90px] p-2'>
+                          {item.mealTitle.split('\n').map((line, index) => (
+                            <div className=' px-2' key={index}>
+                              {line}
+                              <br />
+                            </div>
+                          ))}
+                        </td>
                       </tr>
                     ))}
                   </table>
@@ -345,7 +352,13 @@ function ViewSchedule(props) {
                         className='border-b-1 min-w-[90px]  border-solid border-tremor-border p-1  align-text-top '
                       >
                         <h3 className='min-w-[12px] p-2'>
-                          {item.mealTitle} - {convertTo12Hour(item.mealTime)}
+                          {convertTo12Hour(item.mealTime)}
+                          {item.mealTitle.split('\n').map((line, index) => (
+                            <div className=' px-2' key={index}>
+                              {line}
+                              <br />
+                            </div>
+                          ))}
                         </h3>
                         {item.recipe?.split('\n').map((line, index) => (
                           <div className=' px-2' key={index}>
