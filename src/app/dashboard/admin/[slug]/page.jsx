@@ -61,6 +61,7 @@ export default function Schedule() {
   const [ViewNotes, setViewNotes] = useState(false);
   const [viewTable, setViewTable] = useState(false);
   const [viewMealHistory, setViewMealHistory] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(null);
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
@@ -188,40 +189,40 @@ export default function Schedule() {
     });
   };
 
-  const addMealToText = (index, item) => {
+  const addMealToText = (item) => {
     const updatedTextAreaValues = [...textAreaValues];
-    updatedTextAreaValues[index] = updatedTextAreaValues[index]
-      ? `${updatedTextAreaValues[index]}\n${item.recipe_id.instruction}`
-      : `${item.recipe_id.instruction}`;
+    updatedTextAreaValues[currentIndex] = updatedTextAreaValues[currentIndex]
+      ? `${updatedTextAreaValues[currentIndex]}\n${
+          item?.recipe_id?.instruction || ''
+        }`
+      : `${item?.recipe_id?.instruction || ''}`;
     setTextAreaValues(updatedTextAreaValues);
 
     const fakeEvent = {
       target: {
         name: 'recipe',
-        value: updatedTextAreaValues[index],
+        value: updatedTextAreaValues[currentIndex],
       },
     };
 
-    handleMealChange(fakeEvent, index);
+    handleMealChange(fakeEvent, currentIndex);
   };
-
-  const addMealToInput = (index, item) => {
+  const addMealToInput = (item) => {
     const updatedTextInput = [...textInput];
-    updatedTextInput[index] = updatedTextInput[index]
-      ? `${updatedTextInput[index]}, ${item.recipe_id.title}`
-      : `${item.recipe_id.title}`;
+    updatedTextInput[currentIndex] = updatedTextInput[currentIndex]
+      ? `${updatedTextInput[currentIndex]}, ${item?.recipe_id?.title || ''}`
+      : `${item?.recipe_id?.title || ''}`;
     setTextInput(updatedTextInput);
 
     const fakeEvent = {
       target: {
         name: 'mealTitle',
-        value: updatedTextInput[index],
+        value: updatedTextInput[currentIndex],
       },
     };
 
-    handleMealChange(fakeEvent, index);
+    handleMealChange(fakeEvent, currentIndex);
   };
-
   const addMeal = () => {
     setFormData({
       ...formData,
@@ -358,6 +359,16 @@ export default function Schedule() {
       })
     );
 
+    await dispatch(
+      updateClient({
+        token: user.token,
+        id: client.data.id,
+        data: {
+          end_date: updatedScheduleData.end,
+        },
+      })
+    );
+
     dispatch(
       getScheduleByclientID({
         page: page,
@@ -457,15 +468,12 @@ export default function Schedule() {
                 />
 
                 <Button
-                  style={{
-                    display:
-                      index === formData.diet.length - 1 ? 'flex' : 'none',
-                  }}
                   className=' my-2 w-28'
                   onClick={() => {
                     setAddvalueFromList(!addvalueFromList);
                     setSelectedCombination('');
                     document.body.style.overflow = 'hidden';
+                    setCurrentIndex(index);
                   }}
                 >
                   Search Recipe
@@ -526,14 +534,15 @@ export default function Schedule() {
                           <div className='mt-2 flex flex-wrap gap-2'>
                             {recipeList.data.length > 0 && (
                               <div className='mt-2 flex flex-wrap gap-2'>
-                                {recipeList.data.map((item) => {
+                                {recipeList.data.map((item, index) => {
                                   return (
                                     <Card
                                       className=' w-fit cursor-pointer'
                                       onClick={() => {
-                                        addMealToText(index, item);
-                                        addMealToInput(index, item);
+                                        addMealToText(item);
+                                        addMealToInput(item);
                                         setAddvalueFromList(false);
+                                        setCurrentIndex(index);
                                       }}
                                       key={item.id}
                                     >
@@ -1040,7 +1049,7 @@ function ViewNotesWindow(props) {
   const client = useSelector((state) => state.clientRoot.clients);
   const user = useSelector((state) => state.user);
   const handelNotes = async () => {
-    dispatch(
+    await dispatch(
       updateClient({
         token: user.token,
         id: client.data.id,

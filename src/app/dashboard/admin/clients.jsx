@@ -64,6 +64,37 @@ export default function Clients(props) {
   const [scheduleId, setScheduleId] = useState('');
   const [newClientErrors, setNewClientErrors] = useState(false);
 
+  function formatDate(dateString) {
+    // Parse the input date string
+    const date = new Date(dateString);
+
+    // Get the day, month, and year
+    const day = date.getDate();
+    const monthIndex = date.getMonth();
+    const year = date.getFullYear();
+
+    // Array of month names
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+
+    // Format the date as "DD Mon YYYY"
+    const formattedDate = `${day} ${monthNames[monthIndex]} ${year}`;
+
+    return formattedDate;
+  }
+
   useEffect(() => {
     setShowSuspended('active');
   }, [props.page]);
@@ -434,6 +465,7 @@ export default function Clients(props) {
                 <TableHeaderCell>S No.</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Email</TableHeaderCell>
+                <TableHeaderCell>End Date</TableHeaderCell>
                 <TableHeaderCell>Active</TableHeaderCell>
                 <TableHeaderCell>Edit</TableHeaderCell>
                 <TableHeaderCell>Delete</TableHeaderCell>
@@ -447,6 +479,7 @@ export default function Clients(props) {
                     {client.first_name} {client.last_name}
                   </TableCell>
                   <TableCell>{client.email}</TableCell>
+                  <TableCell>{formatDate(client.end_date)}</TableCell>
                   <TableCell>{client.status}</TableCell>
                   <TableCell
                     className=' cursor-pointer'
