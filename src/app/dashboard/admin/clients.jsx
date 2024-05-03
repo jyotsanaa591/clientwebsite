@@ -628,7 +628,7 @@ export default function Clients(props) {
                 defaultValue={client.data.dob}
                 onChange={(e) => {
                   setEditClientData({
-                    ...newClientData,
+                    ...editClientData,
                     dob: e.target.value,
                   });
                 }}
