@@ -97,7 +97,7 @@ export default function Clients(props) {
 
   useEffect(() => {
     setShowSuspended('active');
-  }, [props.page]);
+  }, []);
 
   const handelEdit = async (id) => {
     setEditId(id);

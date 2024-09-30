@@ -33,11 +33,7 @@ import {
   deleteScheduleById,
 } from '@/redux/features/schedule';
 import {
-  Select,
-  DatePicker,
-  SelectItem,
   Card,
-  SearchSelect,
   Button,
   Table,
   TableBody,
