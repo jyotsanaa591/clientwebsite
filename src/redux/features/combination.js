@@ -13,6 +13,7 @@ export const makeCombinationByid = createAsyncThunk(
   async ({ token, data }) => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/items/combination`,
+     
       data,
       {
         headers: {

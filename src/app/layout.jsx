@@ -20,14 +20,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang='en'>
-      <ProviderShell>
+     
         <body
           className={`${poppins.className}  bg-tremor-background-muted dark:bg-dark-tremor-background-muted`}
-        >
+        ><ProviderShell>
           <Navigation />
           {children}
-        </body>
       </ProviderShell>
+       </body>
     </html>
   );
 }

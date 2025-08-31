@@ -13,6 +13,7 @@ export const getCombinationsList = createAsyncThunk(
   async ({ token, page }) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/items/combination?limit=9&page=${page}`,
+       
       {
         headers: {
           'Content-Type': 'application/json',

@@ -14,6 +14,7 @@ export const userLogin = createAsyncThunk(
   async ({ email, password }) => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      
       {
         email,
         password,
@@ -26,6 +27,7 @@ export const userLogin = createAsyncThunk(
 export const userVerify = createAsyncThunk('user/verify', async ({ token }) => {
   const response = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}/users/me`,
+   
     {
       headers: {
         'Content-Type': 'application/json',

@@ -13,6 +13,8 @@ export const getClients = createAsyncThunk(
   async ({ token, page, active }) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/users?filter[role]=0ce3fcd3-92a1-453d-8067-8308d5c372ad&filter[status]=${active}&limit=10&page=${page}&sort=end_date`,
+           
+
       {
         headers: {
           'Content-Type': 'application/json',

@@ -13,6 +13,7 @@ export const getRecipeById = createAsyncThunk(
   async ({ token, id }) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}/items/recipe/${id}`,
+       
       {
         headers: {
           'Content-Type': 'application/json',
