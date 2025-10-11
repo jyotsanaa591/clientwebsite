@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/navigation';
+import { userVerify } from '@/redux/features/user';
+import React, { useState, useEffect, useRef } from 'react';
 
 import {
   Page,
@@ -70,6 +72,7 @@ export default function Schedule() {
   const recipeList = useSelector(
     (state) => state.combinationRoot.combination_recipe
   );
+  const [selectedRecipes, setSelectedRecipes] = useState([]);
 
   const [formData, setFormData] = useState({
     name: client.data.first_name + ' ' + client.data.last_name,
@@ -289,14 +292,45 @@ export default function Schedule() {
     document.body.style.overflow = 'hidden';
   };
 
+  // useEffect(() => {
+  //   if (
+  //     !user.token ||
+  //     user.data.role !== '105fbd5c-8423-4cd4-851a-6f3a95cab70f'
+  //   ) {
+  //     router.push('/');
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (
-      !user.token ||
-      user.data.role !== '105fbd5c-8423-4cd4-851a-6f3a95cab70f'
-    ) {
+  const verifyAccess = async () => {
+    if (!user?.token) {
+      router.push('/');
+      return;
+    }
+
+    try {
+      const res = await dispatch(userVerify({ token: user.token }));
+      const roleId = res?.payload?.data?.role;
+
+      console.log("Logged-in Role UUID:", roleId);
+
+      if (
+        roleId === "105fbd5c-8423-4cd4-851a-6f3a95cab70f" || // Admin
+        roleId === "7fa6c95a-2a73-4a8f-85f9-408ffe87e23f" || // Viewer
+        roleId === "0ce3fcd3-92a1-453d-8067-8308d5c372ad"   // User
+      ) {
+        console.log("Access granted to schedule page");
+      } else {
+        router.push('/');
+      }
+    } catch (err) {
+      console.error("Role check failed:", err);
       router.push('/');
     }
-  }, []);
+  };
+
+  verifyAccess();
+}, [user.token, dispatch, router]);
   function formatDate(dateString) {
     // Parse the input date string
     const date = new Date(dateString);
@@ -530,22 +564,74 @@ export default function Schedule() {
                           <div className='mt-2 flex flex-wrap gap-2'>
                             {recipeList.data.length > 0 && (
                               <div className='mt-2 flex flex-wrap gap-2'>
-                                {recipeList.data.map((item, index) => {
-                                  return (
-                                    <Card
-                                      className=' w-fit cursor-pointer'
-                                      onClick={() => {
-                                        addMealToText(item);
-                                        addMealToInput(item);
-                                        setAddvalueFromList(false);
-                                        setCurrentIndex(index);
-                                      }}
-                                      key={item.id}
-                                    >
-                                      {item?.recipe_id && item.recipe_id.title}
-                                    </Card>
-                                  );
-                                })}
+                                {recipeList.data.map((item) => {
+  const isSelected = selectedRecipes.includes(item.id);
+  return (
+    <Card
+      className={`w-fit cursor-pointer p-2 ${
+        isSelected ? "bg-green-200" : ""
+      }`}
+      onClick={() => {
+        setSelectedRecipes((prev) =>
+          prev.includes(item.id)
+            ? prev.filter((id) => id !== item.id)
+            : [...prev, item.id]
+        );
+      }}
+      key={item.id}
+    >
+      {item?.recipe_id && item.recipe_id.title}
+    </Card>
+  );
+})}
+{selectedRecipes.length > 0 && (
+  <div className="mt-4">
+    <p className="mb-2">Selected: {selectedRecipes.length}</p>
+    <Button
+  onClick={() => {
+    // Find all selected recipes from recipeList
+    const chosen = recipeList.data.filter((r) =>
+      selectedRecipes.includes(r.id)
+    );
+
+    // Join titles with " / "
+    const titles = chosen
+      .map((item) => item?.recipe_id?.title || "")
+      .join(" / ");
+
+    // Join instructions with new lines
+    const instructions = chosen
+      .map((item) => item?.recipe_id?.instruction || "")
+      .join("\n\n");
+
+    // Update Meal Title (slash concatenated)
+    const newTextInput = [...textInput];
+    newTextInput[currentIndex] = titles;
+    setTextInput(newTextInput);
+
+    // Update Recipe textarea (newline concatenated)
+    const newTextAreaValues = [...textAreaValues];
+    newTextAreaValues[currentIndex] = instructions;
+    setTextAreaValues(newTextAreaValues);
+
+    // Update formData so it also stores everything correctly
+    setFormData((prev) => {
+      const updatedDiet = [...prev.diet];
+      updatedDiet[currentIndex].mealTitle = titles;
+      updatedDiet[currentIndex].recipe = instructions;
+      return { ...prev, diet: updatedDiet };
+    });
+
+    // Close modal and reset selections
+    setSelectedRecipes([]);
+    setAddvalueFromList(false);
+    document.body.style.overflow = "auto";
+  }}
+>
+  Done
+</Button>
+  </div>
+)}
                               </div>
                             )}
                           </div>
@@ -898,140 +984,159 @@ function ViewSchedule(props) {
             </div>
 
             <PDFExport
-              scale={0.6}
-              ref={pdfref}
-              fileName={schedule.data?.name}
-              paperSize='A4'
+  ref={pdfref}
+  fileName={schedule.data?.name || "Schedule"}
+  paperSize="A4"
+  margin={{ top: 30, left: 30, right: 30, bottom: 30 }} // ✅ Proper margin
+  scale={0.8} // ✅ Ensures full fit within page
+  forcePageBreak=".page-break"
+>
+  <div
+    className="m-auto min-h-full max-w-[700px] bg-white font-sans text-black border border-gray-300 rounded-md p-6"
+    style={{
+      boxSizing: "border-box",
+      lineHeight: 1.5,
+      overflow: "hidden", // ✅ Prevents content cutoff
+    }}
+  >
+    {/* Header */}
+    <img
+      alt="letterhead"
+      className="w-full object-contain rounded-md mb-4"
+      src="/letterhead.png"
+    />
+
+    {/* Name and Date Info */}
+    <div className="flex justify-between items-center mb-3">
+      <div>
+        <h1 className="text-lg font-bold">
+          {schedule.data?.schedule?.name || "Name Not Available"}
+        </h1>
+        <h2 className="text-sm">
+          DOB:{" "}
+          {schedule.data?.schedule?.dob
+            ? formatDate(schedule.data.schedule.dob)
+            : "Not Provided"}
+        </h2>
+      </div>
+      <div className="text-sm text-right">
+        {schedule.data?.start && schedule.data?.end
+          ? `${formatDate(schedule.data.start)} – ${formatDate(schedule.data.end)}`
+          : "Date not available"}
+      </div>
+    </div>
+
+    <hr className="border-gray-700 mb-3" />
+
+    {/* Info Section */}
+    <section className="grid grid-cols-2 gap-4 text-sm mb-4">
+      <span>
+        Starting Weight:{" "}
+        {schedule.data?.schedule?.initialWeight
+          ? `${schedule.data.schedule.initialWeight} kg`
+          : "N/A"}
+      </span>
+      <span>
+        Current Weight:{" "}
+        {schedule.data?.schedule?.currentWeight
+          ? `${schedule.data.schedule.currentWeight} kg`
+          : "N/A"}
+      </span>
+      <span>
+        Height:{" "}
+        {schedule.data?.schedule?.initilaHeight
+          ? `${schedule.data.schedule.initilaHeight} cm`
+          : "N/A"}
+      </span>
+      <span>Age: {schedule.data?.schedule?.initialAge || "N/A"}</span>
+    </section>
+
+    <hr className="border-gray-700 mb-3" />
+
+    {/* Diet Table */}
+    <h2 className="font-semibold text-base mb-2">Diet to be Followed</h2>
+    <table className="w-full border-collapse border border-gray-400 text-sm mb-6">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border border-gray-400 p-2 text-left">S.No</th>
+          <th className="border border-gray-400 p-2 text-left">Time</th>
+          <th className="border border-gray-400 p-2 text-left">Meal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {schedule.data?.schedule?.diet?.length > 0 ? (
+          schedule.data.schedule.diet.map((item, index) => (
+            <tr key={index} className="align-top">
+              <td className="border border-gray-400 p-2">{index + 1}</td>
+              <td className="border border-gray-400 p-2">
+                {item.mealTime ? convertTo12Hour(item.mealTime) : "N/A"}
+              </td>
+              <td className="border border-gray-400 p-2">
+                {item.mealTitle
+                  ? item.mealTitle.split("\n").map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))
+                  : "No meal details"}
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td
+              colSpan="3"
+              className="border border-gray-400 p-3 text-center text-gray-500"
             >
-              <div className='m-auto min-h-full max-w-6xl overflow-y-auto  border border-tremor-border  bg-white  font-sans  text-tremor-content-strong    '>
-                <img
-                  alt='letterhead'
-                  className='w-full  object-cover'
-                  src='/letterhead.png'
-                />
-                <div className=' mb-1 flex w-full justify-between px-2'>
-                  <div>
-                    <h1 className='  font-bold'>
-                      {schedule.data?.schedule?.name}
-                    </h1>
-                    <h2>DOB : {formatDate(schedule.data?.schedule?.dob)}</h2>
-                  </div>
+              No diet data available
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
 
-                  <div>
-                    <span>
-                      {formatDate(schedule.data?.start)} -{' '}
-                      {formatDate(schedule.data?.end)}
-                    </span>
-                  </div>
-                </div>{' '}
-                <hr className=' border-t-2  border-black' />
-                <section className='px-2'>
-                  <div className=' grid grid-cols-2 gap-20'>
-                    <span>
-                      Starting Weight : {schedule.data?.schedule?.initialWeight}{' '}
-                      kg
-                    </span>
-                    <span>
-                      Current Weight : {schedule.data?.schedule?.currentWeight}{' '}
-                      kg
-                    </span>
-                  </div>
-                  <div className=' grid grid-cols-2 gap-20'>
-                    <span>
-                      Height : {schedule.data?.schedule?.initilaHeight} cm
-                    </span>
-                    <span>Age : {schedule.data?.schedule?.initialAge}</span>
-                  </div>
-                </section>
-                <br />
-                <hr className='border-black' />
-                <h2 className='px-2'>Diet to be Followed</h2>
-                <hr className=' border-black' />
-                <br />
-                <section className='px-2'>
-                  <table className='mt-5  w-full'>
-                    <tr
-                      style={{ border: '0.5px solid' }}
-                      className='border-b-1 min-w-[90px] border-solid border-tremor-border align-text-top '
-                    >
-                      <th className='min-w-[90px] p-2'>Sno.</th>
-                      <th className='min-w-[120px] p-2'>Time</th>
-                      <th className='min-w-[90px] p-2'>Meal</th>
-                    </tr>
+    {/* Notes Section */}
+    <h2 className="font-semibold mb-1">Notes:</h2>
+    <div className="bg-gray-50 p-3 rounded text-sm mb-6 border border-gray-200">
+      {(() => {
+        const notes = schedule.data?.schedule?.notes;
+        if (!notes) return "No notes available.";
+        if (typeof notes === "string")
+          return notes.split("\n").map((line, i) => <div key={i}>{line}</div>);
+        if (typeof notes === "object")
+          return (
+            <pre className="whitespace-pre-wrap">
+              {JSON.stringify(notes, null, 2)}
+            </pre>
+          );
+        return String(notes);
+      })()}
+    </div>
 
-                    {schedule.data?.schedule?.diet?.map((item, Index) => (
-                      <tr
-                        style={{ border: '0.5px solid' }}
-                        key={Index}
-                        className='border-b-1  min-w-[90px] border-solid border-tremor-border  align-text-top '
-                      >
-                        <td className='min-w-[90px] p-2'>{Index + 1}</td>
-                        <td className='min-w-[12px] p-2'>
-                          {convertTo12Hour(item.mealTime)}
-                        </td>
-                        <td className='min-w-[90px] p-2'>
-                          {item.mealTitle.split('\n').map((line, index) => (
-                            <div className=' px-2' key={index}>
-                              {line}
-                              <br />
-                            </div>
-                          ))}
-                        </td>
-                      </tr>
-                    ))}
-                  </table>
-                </section>
-                <br />
-                <br />
-                <div className=' grid grid-cols-1 gap-2 px-2'>
-                  <h2>Notes:</h2>
-                  <span>
-                    {schedule.data?.schedule?.notes
-                      .split('\n')
-                      .map((line, index) => (
-                        <div key={index}>
-                          {line}
-                          <br />
-                        </div>
-                      ))}
-                  </span>
-                </div>
-                <div>
-                  <br />
-
-                  <section className='px-2'>
-                    <h2>Recipes</h2>
-                    <hr />
-
-                    {schedule.data?.schedule?.diet?.map((item, Index) => (
-                      <div
-                        style={{ border: '0.5px solid' }}
-                        key={Index}
-                        className='border-b-1 min-w-[90px]  border-solid border-tremor-border p-1  align-text-top '
-                      >
-                        <h3 className='min-w-[12px] p-2'>
-                          {convertTo12Hour(item.mealTime)}
-                          {item.mealTitle.split('\n').map((line, index) => (
-                            <div className=' px-2' key={index}>
-                              {line}
-                              <br />
-                            </div>
-                          ))}
-                        </h3>
-                        {item.recipe?.split('\n').map((line, index) => (
-                          <div className=' px-2' key={index}>
-                            {line}
-                            <br />
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </section>
-                  <br />
-                  <br />
-                </div>
-              </div>
-            </PDFExport>
+    {/* Recipes */}
+    <h2 className="font-semibold text-base mb-2">Recipes</h2>
+    {schedule.data?.schedule?.diet?.length > 0 ? (
+      schedule.data.schedule.diet.map((item, index) => (
+        <div
+          key={index}
+          className="border border-gray-300 rounded-md p-3 mb-3 break-inside-avoid"
+        >
+          <h3 className="font-semibold text-sm mb-1">
+            {item.mealTime ? convertTo12Hour(item.mealTime) : "N/A"} —{" "}
+            {item.mealTitle || "Untitled Meal"}
+          </h3>
+          <div className="text-sm">
+            {item.recipe
+              ? item.recipe.split("\n").map((line, idx) => (
+                  <div key={idx}>{line}</div>
+                ))
+              : "No recipe details available."}
+          </div>
+        </div>
+      ))
+    ) : (
+      <p className="text-gray-500 text-sm">No recipes available.</p>
+    )}
+  </div>
+</PDFExport>
           </Card>
         </div>
       )}

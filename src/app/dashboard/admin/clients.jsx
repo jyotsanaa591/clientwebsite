@@ -50,6 +50,7 @@ export default function Clients(props) {
   const [newClientData, setNewClientData] = useState({
     first_name: '',
     last_name: '',
+    phone_number:'',
     email: '',
     status: '',
     password: '',
@@ -247,7 +248,7 @@ export default function Clients(props) {
           <div className='mt-2 flex flex-col gap-1.5'>
             <div className=' flex gap-1'>
               <div className=' w-full'>
-                <span className=' text-xs'> First name</span>
+                <span className=' text-xs'>First Name</span>
                 <TextInput
                   error={
                     newClientData.first_name === '' && newClientErrors
@@ -265,7 +266,7 @@ export default function Clients(props) {
               </div>
 
               <div className=' w-full'>
-                <span className=' text-xs'>Last name</span>
+                <span className=' text-xs'>Last Name</span>
                 <TextInput
                   onChange={(e) => {
                     setNewClientData({
@@ -273,9 +274,21 @@ export default function Clients(props) {
                       last_name: e.target.value,
                     });
                   }}
-                  placeholder='Last Name'
+                  placeholder='Last Name *'
                 />
               </div>
+              <div className='w-full'>
+  <span className='text-xs'>Phone Number</span>
+  <TextInput
+    onChange={(e) => {
+      setNewClientData({
+        ...newClientData,
+        phone_number: e.target.value,
+      });
+    }}
+    placeholder='Phone Number'
+  />
+</div>
             </div>
             <span className=' text-xs'>Email</span>
             <TextInput
@@ -465,6 +478,7 @@ export default function Clients(props) {
                 <TableHeaderCell>S No.</TableHeaderCell>
                 <TableHeaderCell>Name</TableHeaderCell>
                 <TableHeaderCell>Email</TableHeaderCell>
+                <TableHeaderCell>Date Of Birth</TableHeaderCell>
                 <TableHeaderCell>End Date</TableHeaderCell>
                 <TableHeaderCell>Active</TableHeaderCell>
                 <TableHeaderCell>Edit</TableHeaderCell>
@@ -479,9 +493,10 @@ export default function Clients(props) {
                     {client.first_name} {client.last_name}
                   </TableCell>
                   <TableCell>{client.email}</TableCell>
+                  <TableCell>{formatDate(client.dob)}</TableCell>
                   <TableCell>{formatDate(client.end_date)}</TableCell>
                   <TableCell>{client.status}</TableCell>
-                  <TableCell
+                  {/* <TableCell
                     className=' cursor-pointer'
                     onClick={() => {
                       handelEdit(client.id);
@@ -497,7 +512,40 @@ export default function Clients(props) {
                     }}
                   >
                     Delete
-                  </TableCell>
+                  </TableCell> */}
+
+                  {/* ✅ Only Admin Can Edit/Delete */}
+{user.data.role === "105fbd5c-8423-4cd4-851a-6f3a95cab70f" && (
+  <>
+    <TableCell
+      className='cursor-pointer text-blue-600'
+      onClick={() => handelEdit(client.id)}
+    >
+      Edit
+    </TableCell>
+
+    <TableCell
+      className='cursor-pointer text-red-500'
+      onClick={() => {
+        setDeleteClient(true);
+        setDeleteId(client.id);
+      }}
+    >
+      Delete
+    </TableCell>
+  </>
+)}
+
+{/*  Viewer Can Only View, No Edit/Delete */}
+{user.data.role === "7fa6c95a-2a73-4a8f-85f9-408ffe87e23f" && (
+  <>
+    <TableCell className='text-gray-400 italic'>View Only</TableCell>
+    <TableCell className='text-gray-400 italic'>View Only</TableCell>
+  </>
+)}
+
+{/* ✅ User (normal client) will never reach here, they have their own dashboard */}
+                
                 </TableRow>
               ))}
             </TableBody>
@@ -582,7 +630,7 @@ export default function Clients(props) {
           <div className='mt-2 flex flex-col gap-1.5'>
             <div className=' flex gap-1'>
               <div className=' w-full'>
-                <span className=' text-xs'>First name</span>
+                <span className=' text-xs'>Name</span>
                 <TextInput
                   defaultValue={client.data.first_name}
                   onChange={(e) => {
@@ -591,20 +639,20 @@ export default function Clients(props) {
                       first_name: e.target.value,
                     });
                   }}
-                  placeholder='First Name *'
+                  placeholder='Name *'
                 />
               </div>
               <div className=' w-full'>
-                <span className=' text-xs'>Last name</span>
+                <span className=' text-xs'>Phone Number</span>
                 <TextInput
-                  defaultValue={client.data.last_name}
+                  defaultValue={client.data.phone_number}
                   onChange={(e) => {
                     setEditClientData({
                       ...editClientData,
-                      last_name: e.target.value,
+                      phone_number: e.target.value,
                     });
                   }}
-                  placeholder='Last Name'
+                  placeholder='Phone number *'
                 />
               </div>
             </div>
