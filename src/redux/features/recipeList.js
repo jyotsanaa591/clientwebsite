@@ -11,15 +11,24 @@ const initialState = {
 export const getRecipeList = createAsyncThunk(
   'recipeList/getRecipeList',
   async ({ token, page }) => {
+    // const response = await axios.get(
+    //   `${process.env.NEXT_PUBLIC_API_URL}/items/recipe?limit=9&page=${page}&sort=title`,
+    //   {
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   }
+    // );
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/items/recipe?limit=9&page=${page}&sort=title`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  `${process.env.NEXT_PUBLIC_API_URL}/items/recipe?limit=9&page=${page}&sort=title&fields[]=id&fields[]=title&fields[]=combination_id.id&fields[]=combination_id.title`,
+  {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
     return response.data;
   }
 );
@@ -28,14 +37,14 @@ export const getRecipeListBySearch = createAsyncThunk(
   'recipeList/getRecipeListBySearch',
   async ({ token, page, search }) => {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/items/recipe?search=${search}&limit=9&page=${page}&sort=title`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  `${process.env.NEXT_PUBLIC_API_URL}/items/recipe?limit=9&page=${page}&sort=title&fields[]=id&fields[]=title&fields[]=combination_id.id&fields[]=combination_id.title`,
+  {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
     return response.data;
   }
 );
@@ -90,3 +99,6 @@ const recipeList = createSlice({
 
 export default recipeList.reducer;
 export const { clearrecipeList } = recipeList.actions;
+
+
+
