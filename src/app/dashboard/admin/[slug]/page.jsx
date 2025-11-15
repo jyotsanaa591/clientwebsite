@@ -510,136 +510,144 @@ export default function Schedule() {
                 </Button>
 
                 {addvalueFromList && (
-                  <Card className=' fixed left-0 top-0 z-30 h-[100vh] w-[100vw]'>
-                    <Button
-                      onClick={() => {
-                        setAddvalueFromList(false);
-                        document.body.style.overflow = 'auto';
-                      }}
-                    >
-                      Close
-                    </Button>
-                    {selectedCombination === '' && (
-                      <div>
-                        <TextInput
-                          type='search'
-                          className=' mt-3'
-                          placeholder='Search Combination'
-                          onChange={(e) => {
-                            setSearch(e.target.value);
-                          }}
-                        ></TextInput>
-                        <div className='mt-2 flex flex-wrap gap-2'>
-                          {combinationList.data.map((item) => {
-                            return (
-                              <Card
-                                className=' w-fit cursor-pointer'
-                                onClick={() => {
-                                  setSelectedCombination(item.id);
-                                }}
-                                key={item.id}
-                              >
-                                {item.title}
-                              </Card>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedCombination !== '' && (
-                      <div>
-                        <TextInput
-                          type='search'
-                          className=' mt-3'
-                          placeholder='Search Recipe'
-                          onChange={(e) => {
-                            setSearchRecipe(e.target.value);
-                          }}
-                        ></TextInput>
-
-                        {recipeLoading ? (
-                          <div>Loading...</div>
-                        ) : (
-                          <div className='mt-2 flex flex-wrap gap-2'>
-                            {recipeList.data.length > 0 && (
-                              <div className='mt-2 flex flex-wrap gap-2'>
-                                {recipeList.data.map((item) => {
-  const isSelected = selectedRecipes.includes(item.id);
-  return (
-    <Card
-      className={`w-fit cursor-pointer p-2 ${
-        isSelected ? "bg-green-200" : ""
-      }`}
-      onClick={() => {
-        setSelectedRecipes((prev) =>
-          prev.includes(item.id)
-            ? prev.filter((id) => id !== item.id)
-            : [...prev, item.id]
-        );
-      }}
-      key={item.id}
-    >
-      {item?.recipe_id && item.recipe_id.title}
-    </Card>
-  );
-})}
-{selectedRecipes.length > 0 && (
-  <div className="mt-4">
-    <p className="mb-2">Selected: {selectedRecipes.length}</p>
+  <Card className="fixed left-0 top-0 z-30 h-[100vh] w-[100vw] overflow-y-auto p-3">
     <Button
-  onClick={() => {
-    // Find all selected recipes from recipeList
-    const chosen = recipeList.data.filter((r) =>
-      selectedRecipes.includes(r.id)
-    );
+      onClick={() => {
+        setAddvalueFromList(false);
+        document.body.style.overflow = "auto";
+      }}
+    >
+      Close
+    </Button>
 
-    // Join titles with " / "
-    const titles = chosen
-      .map((item) => item?.recipe_id?.title || "")
-      .join(" / ");
+    {/* Step 1: Choose combination */}
+    {selectedCombination === "" && (
+      <div>
+        <TextInput
+          type="search"
+          className="mt-3"
+          placeholder="Search Combination"
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <div className="mt-2 flex flex-wrap gap-2">
+          {combinationList.data.map((item) => (
+            <Card
+              className="w-fit cursor-pointer"
+              key={item.id}
+              onClick={() => setSelectedCombination(item.id)}
+            >
+              {item.title}
+            </Card>
+          ))}
+        </div>
+      </div>
+    )}
 
-    // Join instructions with new lines
-    const instructions = chosen
-      .map((item) => item?.recipe_id?.instruction || "")
-      .join("\n\n");
+    {/* Step 2: Choose recipes */}
+    {selectedCombination !== "" && (
+      <div>
+        <TextInput
+          type="search"
+          className="mt-3"
+          placeholder="Search Recipe"
+          onChange={(e) => setSearchRecipe(e.target.value)}
+        />
 
-    // Update Meal Title (slash concatenated)
-    const newTextInput = [...textInput];
-    newTextInput[currentIndex] = titles;
-    setTextInput(newTextInput);
+        {recipeLoading ? (
+          <div>Loading...</div>
+        ) : (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {recipeList.data.map((item) => {
+              const isAlreadyAdded =
+              formData.diet[currentIndex]?.mealTitle
+                ?.split(" / ")
+                ?.includes(item.recipe_id.title);
 
-    // Update Recipe textarea (newline concatenated)
-    const newTextAreaValues = [...textAreaValues];
-    newTextAreaValues[currentIndex] = instructions;
-    setTextAreaValues(newTextAreaValues);
+            if (isAlreadyAdded) return null;
+              const isSelected = selectedRecipes.includes(item.id);
+              return (
+                <Card
+                  key={item.id}
+                  className={`w-fit cursor-pointer p-2 ${
+                    isSelected ? "bg-green-200" : ""
+                  }`}
+                  onClick={() =>
+                    setSelectedRecipes((prev) =>
+                      prev.includes(item.id)
+                        ? prev.filter((id) => id !== item.id)
+                        : [...prev, item.id]
+                    )
+                  }
+                >
+                  {item?.recipe_id?.title}
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
-    // Update formData so it also stores everything correctly
-    setFormData((prev) => {
-      const updatedDiet = [...prev.diet];
-      updatedDiet[currentIndex].mealTitle = titles;
-      updatedDiet[currentIndex].recipe = instructions;
-      return { ...prev, diet: updatedDiet };
-    });
+        {selectedRecipes.length > 0 && (
+          <div className="mt-4">
+            <p className="mb-2">Selected: {selectedRecipes.length}</p>
+            <Button
+              onClick={() => {
+                const chosen = recipeList.data.filter((r) =>
+                  selectedRecipes.includes(r.id)
+                );
 
-    // Close modal and reset selections
-    setSelectedRecipes([]);
-    setAddvalueFromList(false);
-    document.body.style.overflow = "auto";
-  }}
->
-  Done
-</Button>
-  </div>
+                const titles = chosen
+                  .map((item) => item?.recipe_id?.title || "")
+                  .join(" / ");
+                const instructions = chosen
+                  .map((item) => item?.recipe_id?.instruction || "")
+                  .join("\n\n");
+
+                // ✅ Instead of overwriting, we append to previous ones
+                setTextInput((prev) => {
+                  const newInputs = [...prev];
+                  newInputs[currentIndex] = prev[currentIndex]
+                    ? prev[currentIndex] + " / " + titles
+                    : titles;
+                  return newInputs;
+                });
+
+                setTextAreaValues((prev) => {
+                  const newAreas = [...prev];
+                  newAreas[currentIndex] = prev[currentIndex]
+                    ? prev[currentIndex] + "\n\n" + instructions
+                    : instructions;
+                  return newAreas;
+                });
+
+                setFormData((prev) => {
+                  const updated = { ...prev };
+                  const meal = updated.diet[currentIndex] || {};
+                  meal.mealTitle = meal.mealTitle
+                    ? meal.mealTitle + " / " + titles
+                    : titles;
+                  meal.recipe = meal.recipe
+                    ? meal.recipe + "\n\n" + instructions
+                    : instructions;
+                  updated.diet[currentIndex] = meal;
+                  return updated;
+                });
+
+                // Cleanup
+                setSelectedRecipes([]);
+                setAddvalueFromList(false);
+                setSelectedCombination("");
+                document.body.style.overflow = "auto";
+              }}
+            >
+              Done
+            </Button>
+          </div>
+        )}
+      </div>
+    )}
+  </Card>
 )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </Card>
-                )}
+
                 <Textarea
                   name='mealTitle'
                   className=' mb-2 h-16'
